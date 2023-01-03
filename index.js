@@ -5,12 +5,23 @@ Though do not use a folder yet.
 */
 const { Client, Intents } = require('discord.js');
 const axios = require('axios');
+const express = require('express');
+const app = express();
 
 const cookie = process.env.LBCookie;
+const token = process.env.BotToken;
 const prefix = ";";
 
 const canWhitelist = false;
 const whitelistBypass = [915410908921077780, 849118831251030046];
+
+app.get('/', async (req,res) =>{
+  return res.send('hi ther, bot for lb')
+})
+
+
+app.listen(8999, () => {
+})
 
 function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength) // Extracted from Hosted UnlockedInsertService.
 {
@@ -23,9 +34,7 @@ function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength)
   return document.substr(indice2, indice3 - indice2);
 }
 
-module.exports = {
-  connect: function(TOKEN) {
-    const BotClient = new Client({ partials: ["CHANNEL"], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MESSAGE_TYPING, Intents.FLAGS.DIRECT_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGE_TYPING] });
+ const BotClient = new Client({ partials: ["CHANNEL"], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MESSAGE_TYPING, Intents.FLAGS.DIRECT_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGE_TYPING] });
     
     BotClient.once('ready', () => {
       console.log('LB Whitelist Bot: Active.')
@@ -93,6 +102,4 @@ module.exports = {
     })
 
     // Login.
-    BotClient.login(TOKEN);
-  }
-}
+    BotClient.login(token);
