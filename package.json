@@ -1,0 +1,19 @@
+{
+  "name": "liquid-breakout-bot",
+  "version": "1.0.0",
+  "description": "A discord bot in Node.JS",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "cutymeo",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.26.1",
+    "discord.js": "^13.8.0",
+  },
+  "devDependencies": {
+    "node": "^16.10.0"
+  },
+  "keywords": []
+}
