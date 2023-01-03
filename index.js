@@ -55,7 +55,7 @@ function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength)
 
         if (commandName == "whitelist") {
 					if (!canWhitelist && whitelistBypass.indexOf(message.authod.id) == -1) return message.reply(`Cannot whitelist: Automatic whitelisting is disabled for the time being.`);
-					if (!process.env.AWS_REGION || process.env.AWS_REGION.search("us") == -1) return message.reply(`Bot is in incorrect region. Please notify the bot developer to reboot. Until then, you cannot whitelist.`);
+					if (!process.env.AWS_REGION || process.env.AWS_REGION.search("ap") == -1) return message.reply(`Bot is in incorrect region. Please notify the bot developer to reboot. Until then, you cannot whitelist.`);
           if (args[0] && parseInt(args[0]) != NaN) {
             // Will now attempt to automatically whitelist
             axios({
