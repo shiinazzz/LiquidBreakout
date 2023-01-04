@@ -68,8 +68,14 @@ function whitelistAsset(userId, assetId) {
               .then(async res => {
                 const ownedItem = res.data.indexOf("This item is available in your inventory.") != -1 || res.data.indexOf("Item Owned") != -1;
                 const productId = ExtractStringByBrackets(res.data, `data-product-id="`, `"`, 64);
-    
-                if (!ownedItem) {
+                const expectedPrice = ExtractStringByBrackets(res.data, `data-expected-price="`, `"`, 64);
+                const assetType = ExtractStringByBrackets(page, "data-asset-type=\"", "\"", 64);
+                const isOnSale = ExtractStringByBrackets(page, "data-is-purchase-enabled=\"", "\"", 64) == "true";
+                
+                if (!isOnSale) reject("Item is not on-sale.");
+                else if (assetType != "Model") reject("Item is not a model.")
+                else if (expectedPrice != 0) reject("Item is not free.");
+                else if (!ownedItem) {
                   axios({
                     url: `https://economy.roblox.com/v1/purchases/products/${productId}`,
                     method: "POST",
@@ -79,10 +85,10 @@ function whitelistAsset(userId, assetId) {
                     },
                     data: {
                       expectedCurrency: ExtractStringByBrackets(res.data, `data-expected-currency="`, `"`, 64),
-                      expectedPrice: ExtractStringByBrackets(res.data, `data-expected-price="`, `"`, 64),
+                      expectedPrice: expectedPrice,
                     }
                   })
-                    .then(res => { resolve(`ID ${assetId} successfully whitelisted!`)})
+                    .then(_ => { resolve(`ID ${assetId} successfully whitelisted!`)})
                     .catch(res => reject(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
                 } else resolve(`${assetId} is already whitelisted.`);
               })
