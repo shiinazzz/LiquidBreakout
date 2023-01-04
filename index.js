@@ -181,3 +181,12 @@ const BotClient = new Client({ partials: ["CHANNEL"], intents: [Intents.FLAGS.GU
 
     // Login.
     BotClient.login(token);
+
+    function exitHandler(signal) {
+      console.log(`Received ${signal}, terminating.`);
+      BotClient.destroy();
+      process.exit();
+    }
+    
+    process.on('SIGINT', exitHandler);
+    process.on('SIGTERM', exitHandler);
