@@ -3,7 +3,7 @@ cutymeo here, finally made a new bot in 2022.
 Structure is probably better than old epic bot.
 Though do not use a folder yet.
 */
-const { Client, Intents } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 const axios = require('axios');
 
 const cookie = process.env.LBCookie;
@@ -34,7 +34,14 @@ function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength)
   return document.substr(indice2, indice3 - indice2);
 }
 
- const BotClient = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MESSAGE_TYPING, Intents.FLAGS.DIRECT_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGE_TYPING] });
+ const BotClient = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMembers,
+	],
+});
     
     BotClient.once('ready', () => {
       console.log('LB Whitelist Bot: Active.')
