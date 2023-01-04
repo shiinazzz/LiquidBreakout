@@ -26,8 +26,30 @@ function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength)
   return document.substr(indice2, indice3 - indice2);
 }
 
-function whitelistAsset(assetId) {
+function checkAssetOwnership(userId, assetId) {
     return new Promise((resolve, reject) => {
+        axios(`https://inventory.roblox.com/v1/users/${userId}/items/Asset/${assetId}/is-owned`)
+        .then(res => {
+            resolve(res.response.body);
+        })
+        .catch(res => {
+            reject(false);
+        })
+    })
+}
+
+function whitelistAsset(userId, assetId) {
+    return new Promise((resolve, reject) => {
+        if (userId != NaN) {
+            checkAssetOwnership(userId, assetId)
+            .then(res => {
+                if (!res)
+                    reject("You do not own this asset!");
+            })
+            .catch(_ => {
+                reject("You do not own this asset!");
+            })
+        }
         axios({
             url: "https://auth.roblox.com/v1/logout",
             method: "POST",
@@ -75,8 +97,14 @@ http.createServer(function (req, res) {
 
     switch (parsedUrl.pathname) {
         case "/whitelist":
-            if (query.id && parseInt(query.id) != NaN) {
-                whitelistAsset(query.id)
+            if (!query.assetId || parseInt(query.assetId) == NaN) {
+                res.write("missing assetId in params");
+                res.writeHead(400);
+            } else if (!query.userId || parseInt(query.userId) == NaN) {
+                res.write("missing assetId in params");
+                res.writeHead(400);
+            } else {
+                whitelistAsset(query.userId, query.assetId)
                 .then((msg) => {
                     res.write(msg);
                     res.writeHead(200);
@@ -85,9 +113,6 @@ http.createServer(function (req, res) {
                     res.write(msg);
                     res.writeHead(400);
                 })
-            } else {
-                res.write("missing id");
-                res.writeHead(400);
             }
         default:
             res.write("bot for lb, it do whitelist stuff which is cool and all");
@@ -132,7 +157,7 @@ const BotClient = new Client({ partials: ["CHANNEL"], intents: [Intents.FLAGS.GU
           if (args[0] && parseInt(args[0]) != NaN) {
             // Will now attempt to automatically whitelist
 	        console.log(`${commandName} begin processing for ${message.author.id}`);
-            whitelistAsset(args[0])
+            whitelistAsset(NaN, args[0])
             .then((msg) => {
                 console.log(`${commandName} finished for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
                 message.reply(msg);
