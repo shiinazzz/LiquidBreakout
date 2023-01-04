@@ -98,7 +98,7 @@ function whitelistAsset(userId, assetId) {
 }
 
 http.createServer(function (req, res) {
-    var parsedUrl = url.parse(request.url, true);
+    var parsedUrl = url.parse(req.url, true);
     var query = parsedUrl.query;
 
     switch (parsedUrl.pathname) {
