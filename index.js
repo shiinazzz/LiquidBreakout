@@ -3,7 +3,7 @@ cutymeo here, finally made a new bot in 2022.
 Structure is probably better than old epic bot.
 Though do not use a folder yet.
 */
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, Intents } = require('discord.js');
 const axios = require('axios');
 
 const cookie = process.env.LBCookie;
@@ -35,12 +35,7 @@ function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength)
 }
 
  const BotClient = new Client({
-	intents: [
-		GatewayIntentBits.Guilds,
-		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.MessageContent,
-		GatewayIntentBits.GuildMembers,
-	],
+	intents: [ new Intents(7796) ],
 });
     
     BotClient.once('ready', () => {
