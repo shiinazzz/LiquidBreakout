@@ -30,7 +30,7 @@ function checkAssetOwnership(userId, assetId) {
     return new Promise((resolve, reject) => {
         axios(`https://inventory.roblox.com/v1/users/${userId}/items/Asset/${assetId}/is-owned`)
         .then(res => {
-            resolve(res.response.body);
+            resolve(res.data == "true");
         })
         .catch(res => {
             reject(false);
