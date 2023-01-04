@@ -104,21 +104,22 @@ http.createServer(function (req, res) {
     switch (parsedUrl.pathname) {
         case "/whitelist":
             if (!query.assetId || isNaN(parseInt(query.assetId))) {
-                res.write("missing assetId in params");
+                res.write("missing or invalid assetId in params");
                 res.writeHead(400);
             } else if (!query.userId || isNaN(parseInt(query.userId))) {
-                res.write("missing assetId in params");
+                res.write("missing or invalid userId in params");
                 res.writeHead(400);
             } else {
-                whitelistAsset(query.userId, query.assetId)
-                .then((msg) => {
+                try {
+                  (async function () {
+                    const msg = await whitelistAsset(query.userId, query.assetId);
                     res.write(msg);
                     res.writeHead(200);
-                })
-                .catch((msg) => {
-                    res.write(msg);
-                    res.writeHead(400);
-                })
+                  })()
+                } catch (msg) {
+                  res.write(msg);
+                  res.writeHead(400);
+                }
             }
         default:
             res.write("bot for lb, it do whitelist stuff which is cool and all");
