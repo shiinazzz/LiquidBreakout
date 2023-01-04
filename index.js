@@ -30,9 +30,9 @@ function checkAssetOwnership(userId, assetId) {
     return new Promise((resolve, reject) => {
         axios(`https://inventory.roblox.com/v1/users/${userId}/items/Asset/${assetId}/is-owned`)
         .then(res => {
-            resolve(res.data == "true");
+            resolve(res.data);
         })
-        .catch(res => {
+        .catch(_ => {
             reject(false);
         })
     })
@@ -43,7 +43,7 @@ function whitelistAsset(userId, assetId) {
         if (!isNaN(userId)) {
             checkAssetOwnership(userId, assetId)
             .then(res => {
-                if (!res)
+                if (!res || res != "true")
                     reject("You do not own this asset!");
             })
             .catch(_ => {
