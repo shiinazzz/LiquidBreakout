@@ -107,9 +107,11 @@ http.createServer(async function (req, res) {
             if (!query.assetId || isNaN(parseInt(query.assetId))) {
                 res.writeHead(400);
                 res.end("missing or invalid assetId in params");
+                break
             } else if (!query.userId || isNaN(parseInt(query.userId))) {
-              res.writeHead(400);
+                res.writeHead(400);
                 res.end("missing or invalid userId in params");
+                break
             } else {
                 try {
                   const msg = await whitelistAsset(query.userId, query.assetId);
@@ -119,6 +121,7 @@ http.createServer(async function (req, res) {
                   res.writeHead(400);
                   res.end(msg);
                 }
+                break
             }
         default:
             res.writeHead(200);
