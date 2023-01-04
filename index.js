@@ -30,6 +30,7 @@ function checkAssetOwnership(userId, assetId) {
     return new Promise((resolve, reject) => {
         axios(`https://inventory.roblox.com/v1/users/${userId}/items/Asset/${assetId}/is-owned`)
         .then(res => {
+            console.log(res.data, typeof res.data);
             resolve(res.data);
         })
         .catch(_ => {
@@ -44,7 +45,7 @@ function whitelistAsset(userId, assetId) {
             checkAssetOwnership(userId, assetId)
             .then(res => {
                 if (!res || res != "true")
-                    reject("You do not own this asset!");
+                  reject("You do not own this asset!");
             })
             .catch(_ => {
                 reject("You do not own this asset!");
