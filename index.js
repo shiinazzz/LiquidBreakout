@@ -97,7 +97,7 @@ function whitelistAsset(userId, assetId) {
     })
 }
 
-http.createServer(function (req, res) {
+http.createServer(async function (req, res) {
     var parsedUrl = url.parse(req.url, true);
     var query = parsedUrl.query;
 
@@ -105,28 +105,25 @@ http.createServer(function (req, res) {
     switch (parsedUrl.pathname) {
         case "/whitelist":
             if (!query.assetId || isNaN(parseInt(query.assetId))) {
-                res.write("missing or invalid assetId in params");
                 res.writeHead(400);
+                res.end("missing or invalid assetId in params");
             } else if (!query.userId || isNaN(parseInt(query.userId))) {
-                res.write("missing or invalid userId in params");
-                res.writeHead(400);
+              res.writeHead(400);
+                res.end("missing or invalid userId in params");
             } else {
                 try {
-                  (async function () {
-                    const msg = await whitelistAsset(query.userId, query.assetId);
-                    res.write(msg);
-                    res.writeHead(200);
-                  })()
+                  const msg = await whitelistAsset(query.userId, query.assetId);
+                  res.writeHead(200);
+                  res.end(msg);
                 } catch (msg) {
-                  res.write(msg);
                   res.writeHead(400);
+                  res.end(msg);
                 }
             }
         default:
-            res.write("bot for lb, it do whitelist stuff which is cool and all");
             res.writeHead(200);
+            res.end("bot for lb, it do whitelist stuff which is cool and all");
     }
-    res.end();
 }).listen(8080);
 new http.Agent({
   keepAlive: true,
