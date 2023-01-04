@@ -5,8 +5,6 @@ Though do not use a folder yet.
 */
 const { Client, Intents } = require('discord.js');
 const axios = require('axios');
-const express = require('express');
-const app = express();
 
 const cookie = process.env.LBCookie;
 const token = process.env.BotToken;
@@ -15,13 +13,15 @@ const prefix = ";";
 const canWhitelist = true;
 const whitelistBypass = [915410908921077780, 849118831251030046];
 
-app.get('/', async (req,res) =>{
-  return res.send('hi ther, bot for lb')
-})
-
-
-app.listen(8999, () => {
-})
+if (process.env.canExpress) {
+	const express = require('express');
+	const app = express();
+	app.get('/', async (req,res) =>{
+  		return res.send('hi ther, bot for lb')
+	})
+	app.listen(8999, () => {
+	})
+}
 
 function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength) // Extracted from Hosted UnlockedInsertService.
 {
