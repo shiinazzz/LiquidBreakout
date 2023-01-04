@@ -92,7 +92,7 @@ function whitelistAsset(userId, assetId) {
                     .catch(res => reject(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
                 } else resolve(`${assetId} is already whitelisted.`);
               })
-              .catch(res => {reject(`Failed to fetch information, error code: ${res.response.status}`)})
+              .catch(res => {reject(`Failed to fetch information, error code: ${res.response != null ? res.response.status : "Unknown.\nData received: " + res.data}`)})
           })
     })
 }
