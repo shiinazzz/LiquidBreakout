@@ -14,16 +14,6 @@ const prefix = ";";
 const canWhitelist = true;
 const whitelistBypass = [915410908921077780, 849118831251030046];
 
-http.createServer(function (req, res) {
-  res.write("bot for lb, it do whitelist stuff which is cool and all");
-  res.end();
-}).listen(8080);
-new http.Agent({
-  keepAlive: true,
-  maxSockets: 1,
-  keepAliveMsecs: 15000
-})
-
 function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength) // Extracted from Hosted UnlockedInsertService.
 {
   document = String(document);
@@ -34,6 +24,78 @@ function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength)
     throw "Cannot find the bracketed string.";
   return document.substr(indice2, indice3 - indice2);
 }
+
+function whitelistAsset(assetId) {
+    return new Promise((resolve, reject) => {
+        axios({
+            url: "https://auth.roblox.com/v1/logout",
+            method: "POST",
+            headers: {
+                "cookie": `.ROBLOSECURITY=${cookie}`
+            }
+          }).catch(res => {
+            const xcsrf = res.response.headers["x-csrf-token"];
+            axios({
+              url: "https://roblox.com/library/" + assetId,
+              method: "GET",
+              headers: {
+                "cookie": `.ROBLOSECURITY=${cookie}`
+              }
+            })
+              .then(async res => {
+                const ownedItem = res.data.indexOf("This item is available in your inventory.") != -1 || res.data.indexOf("Item Owned") != -1;
+                const productId = ExtractStringByBrackets(res.data, `data-product-id="`, `"`, 64);
+    
+                if (!ownedItem) {
+                  axios({
+                    url: `https://economy.roblox.com/v1/purchases/products/${productId}`,
+                    method: "POST",
+                    headers: {
+                        "cookie": `.ROBLOSECURITY=${cookie}`,
+                        "x-csrf-token": xcsrf,
+                    },
+                    data: {
+                      expectedCurrency: ExtractStringByBrackets(res.data, `data-expected-currency="`, `"`, 64),
+                      expectedPrice: ExtractStringByBrackets(res.data, `data-expected-price="`, `"`, 64),
+                    }
+                  })
+                    .then(res => { resolve(`ID ${assetId} successfully whitelisted!`)})
+                    .catch(res => reject(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
+                } else resolve(`${assetId} is already whitelisted.`);
+              })
+              .catch(res => {reject(`Failed to fetch information, error code: ${res.response.status}`)})
+          })
+    })
+}
+
+http.createServer(function (req, res) {
+    switch (req.url) {
+        case "/whitelist":
+            if (req.headers["id"] && parseInt(req.headers["id"]) != NaN) {
+                whitelistAsset(req.headers["id"])
+                .then((msg) => {
+                    res.write(msg);
+                    res.writeHead(200);
+                })
+                .catch((msg) => {
+                    res.write(msg);
+                    res.writeHead(400);
+                })
+            } else {
+                res.write("missing id");
+                res.writeHead(400);
+            }
+        default:
+            res.write("bot for lb, it do whitelist stuff which is cool and all");
+            res.writeHead(200);
+    }
+    res.end();
+}).listen(8080);
+new http.Agent({
+  keepAlive: true,
+  maxSockets: 1,
+  keepAliveMsecs: 15000
+})
 
 const BotClient = new Client({ partials: ["CHANNEL"], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MESSAGE_TYPING, Intents.FLAGS.DIRECT_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGE_TYPING ] });
     
@@ -65,45 +127,17 @@ const BotClient = new Client({ partials: ["CHANNEL"], intents: [Intents.FLAGS.GU
 					}
           if (args[0] && parseInt(args[0]) != NaN) {
             // Will now attempt to automatically whitelist
-	console.log(`${commandName} begin processing for ${message.author.id}`);
-            axios({
-              url: "https://auth.roblox.com/v1/logout",
-              method: "POST",
-              headers: {
-                  "cookie": `.ROBLOSECURITY=${cookie}`
-              }
-            }).catch(res => {
-              const xcsrf = res.response.headers["x-csrf-token"];
-              axios({
-                url: "https://roblox.com/library/" + args[0],
-                method: "GET",
-                headers: {
-                  "cookie": `.ROBLOSECURITY=${cookie}`
-                }
-              })
-                .then(async res => {
-                  const ownedItem = res.data.indexOf("This item is available in your inventory.") != -1 || res.data.indexOf("Item Owned") != -1;
-                  const productId = ExtractStringByBrackets(res.data, `data-product-id="`, `"`, 64);
-
-                  if (!ownedItem) {
-                    axios({
-                      url: `https://economy.roblox.com/v1/purchases/products/${productId}`,
-                      method: "POST",
-                      headers: {
-                          "cookie": `.ROBLOSECURITY=${cookie}`,
-                          "x-csrf-token": xcsrf,
-                      },
-                      data: {
-                        expectedCurrency: ExtractStringByBrackets(res.data, `data-expected-currency="`, `"`, 64),
-                        expectedPrice: ExtractStringByBrackets(res.data, `data-expected-price="`, `"`, 64),
-                      }
-                    })
-                      .then(async res => { console.log(`${commandName} finished for ${message.author.id}, ID = ${args[0]}`); message.reply(`ID ${args[0]} successfully whitelisted!`)})
-                      .catch(res => message.reply(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
-                  } else message.reply(`${args[0]} is already whitelisted.`);
-                })
-                .catch(res => message.reply(`Failed to fetch information, error code: ${res.response.status}`))
+	        console.log(`${commandName} begin processing for ${message.author.id}`);
+            whitelistAsset(args[0])
+            .then((msg) => {
+                console.log(`${commandName} finished for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
+                message.reply(msg);
             })
+            .catch((msg) => {
+                console.log(`${commandName} failed for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
+                message.reply(msg);
+            })
+            
           } else message.reply("Either there's no argument or it's not a number!");
         } else if (commandName == "test") message.reply("Hello! I'm alive!");
       }
