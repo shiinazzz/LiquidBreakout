@@ -70,8 +70,8 @@ function whitelistAsset(userId, assetId) {
                 const ownedItem = res.data.indexOf("This item is available in your inventory.") != -1 || res.data.indexOf("Item Owned") != -1;
                 const productId = ExtractStringByBrackets(res.data, `data-product-id="`, `"`, 64);
                 const expectedPrice = ExtractStringByBrackets(res.data, `data-expected-price="`, `"`, 64);
-                const assetType = ExtractStringByBrackets(page, "data-asset-type=\"", "\"", 64);
-                const isOnSale = ExtractStringByBrackets(page, "data-is-purchase-enabled=\"", "\"", 64) == "true";
+                const assetType = ExtractStringByBrackets(res.data, "data-asset-type=\"", "\"", 64);
+                const isOnSale = ExtractStringByBrackets(res.data, "data-is-purchase-enabled=\"", "\"", 64) == "true";
                 
                 if (!isOnSale) reject("Item is not on-sale.");
                 else if (assetType != "Model") reject("Item is not a model.")
