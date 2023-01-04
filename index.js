@@ -44,7 +44,7 @@ function whitelistAsset(userId, assetId) {
         if (!isNaN(userId)) {
             checkAssetOwnership(userId, assetId)
             .then(res => {
-                if (!res || res != "true")
+                if (res != true && res != "true")
                   reject("You do not own this asset!");
             })
             .catch(_ => {
