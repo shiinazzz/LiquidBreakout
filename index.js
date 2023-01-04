@@ -40,7 +40,7 @@ function checkAssetOwnership(userId, assetId) {
 
 function whitelistAsset(userId, assetId) {
     return new Promise((resolve, reject) => {
-        if (userId != NaN) {
+        if (!isNaN(userId)) {
             checkAssetOwnership(userId, assetId)
             .then(res => {
                 if (!res)
@@ -97,10 +97,10 @@ http.createServer(function (req, res) {
 
     switch (parsedUrl.pathname) {
         case "/whitelist":
-            if (!query.assetId || parseInt(query.assetId) == NaN) {
+            if (!query.assetId || isNaN(parseInt(query.assetId))) {
                 res.write("missing assetId in params");
                 res.writeHead(400);
-            } else if (!query.userId || parseInt(query.userId) == NaN) {
+            } else if (!query.userId || isNaN(parseInt(query.userId))) {
                 res.write("missing assetId in params");
                 res.writeHead(400);
             } else {
@@ -154,7 +154,7 @@ const BotClient = new Client({ partials: ["CHANNEL"], intents: [Intents.FLAGS.GU
 						console.log(`${commandName} failed for ${message.author.id}: Bot in incorrect region`);
 						return message.reply(`Bot is in incorrect region. Please notify the bot developer to reboot. Until then, you cannot whitelist.`);
 					}
-          if (args[0] && parseInt(args[0]) != NaN) {
+          if (args[0] && !isNaN(parseInt(args[0]))) {
             // Will now attempt to automatically whitelist
 	        console.log(`${commandName} begin processing for ${message.author.id}`);
             whitelistAsset(NaN, args[0])
