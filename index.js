@@ -12,7 +12,7 @@ const cookie = process.env.LBCookie;
 const token = process.env.BotToken;
 const prefix = ";";
 
-const canWhitelist = false;
+const canWhitelist = true;
 const whitelistBypass = [915410908921077780, 849118831251030046];
 
 app.get('/', async (req,res) =>{
@@ -54,10 +54,17 @@ function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength)
         const commandName = args.shift().toLowerCase();
 
         if (commandName == "whitelist") {
-					if (!canWhitelist && whitelistBypass.indexOf(message.authod.id) == -1) return message.reply(`Cannot whitelist: Automatic whitelisting is disabled for the time being.`);
-					if (!process.env.AWS_REGION || process.env.AWS_REGION.search("ap") == -1) return message.reply(`Bot is in incorrect region. Please notify the bot developer to reboot. Until then, you cannot whitelist.`);
+					if (!canWhitelist && whitelistBypass.indexOf(message.author.id) == -1) {
+						console.log(`${commandName} failed for ${message.author.id}: Whitelist is disabled for user`);
+						return message.reply(`Cannot whitelist: Automatic whitelisting is disabled for the time being.`);
+					}
+					if (!process.env.AWS_REGION || process.env.AWS_REGION.search("ap") == -1) {
+						console.log(`${commandName} failed for ${message.author.id}: Bot in incorrect region`);
+						return message.reply(`Bot is in incorrect region. Please notify the bot developer to reboot. Until then, you cannot whitelist.`);
+					}
           if (args[0] && parseInt(args[0]) != NaN) {
             // Will now attempt to automatically whitelist
+	console.log(`${commandName} begin processing for ${message.author.id}`);
             axios({
               url: "https://auth.roblox.com/v1/logout",
               method: "POST",
@@ -90,7 +97,7 @@ function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength)
                         expectedPrice: ExtractStringByBrackets(res.data, `data-expected-price="`, `"`, 64),
                       }
                     })
-                      .then(async res => { console.log(res); message.reply(`ID ${args[0]} successfully whitelisted!`)})
+                      .then(async res => { console.log(`${commandName} finished for ${message.author.id}, ID = ${args[0]}`); message.reply(`ID ${args[0]} successfully whitelisted!`)})
                       .catch(res => message.reply(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
                   } else message.reply(`${args[0]} is already whitelisted.`);
                 })
