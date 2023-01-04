@@ -5,6 +5,7 @@ Though do not use a folder yet.
 */
 const { Client, Intents } = require('discord.js');
 const axios = require('axios');
+var http = require('http');
 
 const cookie = process.env.LBCookie;
 const token = process.env.BotToken;
@@ -13,15 +14,15 @@ const prefix = ";";
 const canWhitelist = true;
 const whitelistBypass = [915410908921077780, 849118831251030046];
 
-if (process.env.canExpress) {
-	const express = require('express');
-	const app = express();
-	app.get('/', async (req,res) =>{
-  		return res.send('hi ther, bot for lb')
-	})
-	app.listen(8999, () => {
-	})
-}
+http.createServer(function (req, res) {
+  res.write("bot for lb, it do whitelist stuff which is cool and all");
+  res.end();
+}).listen(8080);
+new http.Agent({
+  keepAlive: true,
+  maxSockets: 1,
+  keepAliveMsecs: 15000
+})
 
 function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength) // Extracted from Hosted UnlockedInsertService.
 {
