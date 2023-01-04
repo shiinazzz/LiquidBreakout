@@ -5,7 +5,8 @@ Though do not use a folder yet.
 */
 const { Client, Intents } = require('discord.js');
 const axios = require('axios');
-var http = require('http');
+const http = require('http');
+const url = require('url');
 
 const cookie = process.env.LBCookie;
 const token = process.env.BotToken;
@@ -69,10 +70,13 @@ function whitelistAsset(assetId) {
 }
 
 http.createServer(function (req, res) {
-    switch (req.url) {
+    var parsedUrl = url.parse(request.url, true);
+    var query = parsedUrl.query;
+
+    switch (parsedUrl.pathname) {
         case "/whitelist":
-            if (req.headers["id"] && parseInt(req.headers["id"]) != NaN) {
-                whitelistAsset(req.headers["id"])
+            if (query.id && parseInt(query.id) != NaN) {
+                whitelistAsset(query.id)
                 .then((msg) => {
                     res.write(msg);
                     res.writeHead(200);
