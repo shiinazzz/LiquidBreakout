@@ -59,6 +59,9 @@ function whitelistAsset(userId, assetId) {
             }
           }).catch(res => {
             const xcsrf = res.response.headers["x-csrf-token"];
+            if (!xcsrf) {
+              return reject("Cannot get x-csrf-token.")
+            }
             axios({
               url: "https://api.roblox.com/marketplace/productinfo?assetId=" + assetId,
               method: "GET"
