@@ -63,7 +63,10 @@ function whitelistAsset(userId, assetId) {
               method: "GET"
             })
             .then(async res => {
-              const ownedItem = checkAssetOwnership(138801491, assetId);
+              var ownedItem = false;
+              try {
+                ownedItem = await checkAssetOwnership(138801491, assetId);
+              } catch(_) {}
               const productId = res.data.ProductId;
               const assetType = res.data.AssetTypeId;
               const isOnSale = res.data.IsPublicDomain;
@@ -88,7 +91,7 @@ function whitelistAsset(userId, assetId) {
                     .catch(res => reject(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
                 } else resolve(`${assetId} is already whitelisted.`);
             })
-            .catch(res => reject(`Failed to fetch information. Error code: ${res.response != null ? res.response.status : "Unknown."}\nMessage: ${res.data.errors ? res.data.errors[0].message : res.message}`) )
+            .catch(res => reject(`Failed to fetch information. Error code: ${res.response != null ? res.response.status : "Unknown."}\nMessage: ${res.data && res.data.errors ? res.data.errors[0].message : res.message}`) )
 
             /*
             const xcsrf = res.response.headers["x-csrf-token"];axios({
