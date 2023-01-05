@@ -57,7 +57,7 @@ function whitelistAsset(userId, assetId) {
             headers: {
                 "cookie": `.ROBLOSECURITY=${cookie}`
             }
-          }).catch(res => {
+          }).catch(_ => {
             axios({
               url: "https://api.roblox.com/marketplace/productinfo?assetId=" + assetId,
               method: "GET"
