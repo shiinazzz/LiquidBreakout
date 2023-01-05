@@ -58,8 +58,40 @@ function whitelistAsset(userId, assetId) {
                 "cookie": `.ROBLOSECURITY=${cookie}`
             }
           }).catch(res => {
-            const xcsrf = res.response.headers["x-csrf-token"];
             axios({
+              url: "https://api.roblox.com/marketplace/productinfo?assetId=" + assetId,
+              method: "GET"
+            })
+            .then(async res => {
+              const ownedItem = checkAssetOwnership(138801491, assetId);
+              const productId = res.data.ProductId;
+              const assetType = res.data.AssetTypeId;
+              const isOnSale = res.data.IsPublicDomain;
+            
+              if (!isOnSale) reject("Item is not on-sale.");
+                else if (assetType != 10) reject("Item is not a model.")
+                else if (!isNaN(parseInt(res.data.PriceInRobux)) && parseInt(res.data.PriceInRobux) > 0) reject("Item is not free.");
+                else if (!ownedItem) {
+                  axios({
+                    url: `https://economy.roblox.com/v1/purchases/products/${productId}`,
+                    method: "POST",
+                    headers: {
+                        "cookie": `.ROBLOSECURITY=${cookie}`,
+                        "x-csrf-token": xcsrf,
+                    },
+                    data: {
+                      expectedCurrency: ExtractStringByBrackets(res.data, `data-expected-currency="`, `"`, 64),
+                      expectedPrice: 0,
+                    }
+                  })
+                    .then(_ => { resolve(`ID ${assetId} successfully whitelisted!`)})
+                    .catch(res => reject(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
+                } else resolve(`${assetId} is already whitelisted.`);
+            })
+            .catch(res => reject(`Failed to fetch information. Error code: ${res.response != null ? res.response.status : "Unknown."}\nMessage: ${res.data.errors ? res.data.errors[0].message : res.message}`) )
+
+            /*
+            const xcsrf = res.response.headers["x-csrf-token"];axios({
               url: "https://roblox.com/library/" + assetId,
               method: "GET",
               headers: {
@@ -93,7 +125,7 @@ function whitelistAsset(userId, assetId) {
                     .catch(res => reject(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
                 } else resolve(`${assetId} is already whitelisted.`);
               })
-              .catch(res => {reject(`Failed to fetch information, error code: ${res.response != null ? res.response.status : "Unknown.\nMessage: " + res.message}`)})
+              .catch(res => {reject(`Failed to fetch information, error code: ${res.response != null ? res.response.status : "Unknown.\nMessage: " + res.message}`)})*/
           })
     })
 }
