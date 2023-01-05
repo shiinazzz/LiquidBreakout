@@ -89,7 +89,7 @@ function whitelistAsset(userId, assetId) {
                         "x-csrf-token": xcsrf,
                     },
                     data: {
-                      expectedCurrency: ExtractStringByBrackets(res.data, `data-expected-currency="`, `"`, 64),
+                      expectedCurrency: 1,
                       expectedPrice: 0,
                     }
                   })
