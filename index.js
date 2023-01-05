@@ -57,7 +57,8 @@ function whitelistAsset(userId, assetId) {
             headers: {
                 "cookie": `.ROBLOSECURITY=${cookie}`
             }
-          }).catch(_ => {
+          }).catch(res => {
+            const xcsrf = res.response.headers["x-csrf-token"];
             axios({
               url: "https://api.roblox.com/marketplace/productinfo?assetId=" + assetId,
               method: "GET"
@@ -94,7 +95,8 @@ function whitelistAsset(userId, assetId) {
             .catch(res => reject(`Failed to fetch information. Error code: ${res.response != null ? res.response.status : "Unknown."}\nMessage: ${res.data && res.data.errors ? res.data.errors[0].message : res.message}`) )
 
             /*
-            const xcsrf = res.response.headers["x-csrf-token"];axios({
+            const xcsrf = res.response.headers["x-csrf-token"];
+            axios({
               url: "https://roblox.com/library/" + assetId,
               method: "GET",
               headers: {
