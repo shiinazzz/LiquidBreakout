@@ -71,7 +71,7 @@ function whitelistAsset(userId, assetId) {
               try {
                 ownedItem = await checkAssetOwnership(138801491, assetId);
               } catch( _ ) {
-                return resolve(`${assetId} is already whitelisted.`);
+                ownedItem = false;
               }
               const productId = res.data.ProductId;
               const assetType = res.data.AssetTypeId;
