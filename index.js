@@ -224,8 +224,9 @@ function exitHandler(signal) {
             })
             
           } else message.reply("Either there's no argument or it's not a number!");
-        } else if (commandName == "test") message.reply("Hello! I'm alive!");
-        else if ((commandName) == "forceShutdown") {
+        }
+        else if (commandName == "test") message.reply("Hello! I'm alive!");
+        else if (commandName == "forceShutdown") {
           if (hasPrivileges.indexOf(message.author.id) == -1)
             return message.reply("You cannot use this command!");
           message.reply("Force shutting down...");
