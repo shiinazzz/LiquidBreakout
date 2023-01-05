@@ -14,6 +14,7 @@ const prefix = ";";
 
 const canWhitelist = true;
 const whitelistBypass = [915410908921077780, 849118831251030046];
+const hasPrivileges = [915410908921077780];
 
 function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength) // Extracted from Hosted UnlockedInsertService.
 {
@@ -70,7 +71,7 @@ function whitelistAsset(userId, assetId) {
               try {
                 ownedItem = await checkAssetOwnership(userId, assetId);
               } catch {
-                
+
               }
               const productId = res.data.ProductId;
               const assetType = res.data.AssetTypeId;
@@ -177,7 +178,12 @@ new http.Agent({
 })
 
 const BotClient = new Client({ partials: ["CHANNEL"], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MESSAGE_TYPING, Intents.FLAGS.DIRECT_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGE_TYPING ] });
-    
+
+function exitHandler(signal) {
+  console.log(`Received ${signal}, terminating.`);
+  BotClient.destroy();
+  process.exit();
+}
     BotClient.once('ready', () => {
       console.log('LB Whitelist Bot: Active.')
       BotClient.user.setPresence({
@@ -219,17 +225,17 @@ const BotClient = new Client({ partials: ["CHANNEL"], intents: [Intents.FLAGS.GU
             
           } else message.reply("Either there's no argument or it's not a number!");
         } else if (commandName == "test") message.reply("Hello! I'm alive!");
+        else if ((commandName) == "forceShutdown") {
+          if (hasPrivileges.indexOf(message.author.id) == -1)
+            return message.reply("You cannot use this command!");
+          message.reply("Force shutting down...");
+          exitHandler("FORCE");
+        }
       }
     })
 
     // Login.
     BotClient.login(token);
-
-    function exitHandler(signal) {
-      console.log(`Received ${signal}, terminating.`);
-      BotClient.destroy();
-      process.exit();
-    }
     
     process.on('SIGINT', exitHandler);
     process.on('SIGTERM', exitHandler);
