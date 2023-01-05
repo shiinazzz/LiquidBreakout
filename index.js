@@ -55,7 +55,7 @@ function whitelistAsset(userId, assetId) {
             url: "https://auth.roblox.com/v1/logout",
             method: "POST",
             headers: {
-                "cookie": `.ROBLOSECURITY=${cookie}`
+                "cookie": `.ROBLOSECURITY=${cookie}`,
             }
           }).catch(res => {
             const xcsrf = res.response.headers["x-csrf-token"];
@@ -70,7 +70,9 @@ function whitelistAsset(userId, assetId) {
               var ownedItem = false;
               try {
                 ownedItem = await checkAssetOwnership(138801491, assetId);
-              } catch(_) {}
+              } catch( _ ) {
+                return resolve(`${assetId} is already whitelisted.`);
+              }
               const productId = res.data.ProductId;
               const assetType = res.data.AssetTypeId;
               const isOnSale = res.data.IsPublicDomain;
