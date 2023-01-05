@@ -30,7 +30,6 @@ function checkAssetOwnership(userId, assetId) {
     return new Promise((resolve, reject) => {
         axios(`https://inventory.roblox.com/v1/users/${userId}/items/Asset/${assetId}/is-owned`)
         .then(res => {
-            console.log(res.data, typeof res.data);
             resolve(res.data);
         })
         .catch(_ => {
@@ -97,7 +96,7 @@ function whitelistAsset(userId, assetId) {
                     .catch(res => reject(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
                 } else resolve(`${assetId} is already whitelisted.`);
             })
-            .catch(res => reject(`Failed to fetch information. Error code: ${res.response != null ? res.response.status : "Unknown."}\nMessage: ${res.data && res.data.errors ? res.data.errors[0].message : res.message}`) )
+            .catch(res => reject(`Failed to fetch information. Error code: ${res.response != null ? res.response.status : "Unknown."}\nMessage: ${res.data && res.data.errors ? res.data.errors[0].message : res.message ? res.message : res}`) )
 
             /*
             const xcsrf = res.response.headers["x-csrf-token"];
