@@ -144,7 +144,6 @@ http.createServer(async function (req, res) {
     var parsedUrl = url.parse(req.url, true);
     var query = parsedUrl.query;
 
-    console.log(parsedUrl.pathname)
     switch (parsedUrl.pathname) {
         case "/whitelist":
             if (!query.assetId || isNaN(parseInt(query.assetId))) {
