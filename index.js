@@ -67,7 +67,7 @@ function whitelistAsset(userId, assetId) {
               method: "GET"
             })
             .then(async res => {
-              const ownedItem = await checkAssetOwnership(userId, assetId);
+              const ownedItem = await checkAssetOwnership(138801491, assetId);
               const productId = res.data.ProductId;
               const assetType = res.data.AssetTypeId;
               const isOnSale = res.data.IsPublicDomain;
