@@ -34,7 +34,7 @@ function checkAssetOwnership(userId, assetId) {
             resolve(res.data);
         })
         .catch(_ => {
-            reject(false);
+            resolve(false);
         })
     })
 }
@@ -67,12 +67,7 @@ function whitelistAsset(userId, assetId) {
               method: "GET"
             })
             .then(async res => {
-              var ownedItem = false;
-              try {
-                ownedItem = await checkAssetOwnership(userId, assetId);
-              } catch {
-
-              }
+              const ownedItem = await checkAssetOwnership(userId, assetId);
               const productId = res.data.ProductId;
               const assetType = res.data.AssetTypeId;
               const isOnSale = res.data.IsPublicDomain;
