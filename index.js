@@ -46,7 +46,7 @@ async function logWhitelist(user, assetId, isSuccess, status) {
 	      	color: isSuccess ? 5763719 : 15548997,
 		thumbnail: {
       			url: thumbnailImage
-    		}
+    		},
 	      	fields: [{
 		  	name: "Discord User / Roblox UserID",
 		  	value: user
