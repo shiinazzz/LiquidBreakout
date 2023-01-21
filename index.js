@@ -41,6 +41,7 @@ function checkAssetOwnership(userId, assetId) {
 
 async function logWhitelist(user, assetId, isSuccess, status) {
 	let thumbnailImage = parseInt(user) == -1 ? (await message.guild.members.fetch(user.match(/\d/g).join(""))).avatarURL : `https://www.roblox.com/headshot-thumbnail/image?userId={user}&width=420&height=420&format=png`
+	console.log(thumbnailImage)
 	let embeds = [{
 		title: "New Whitelist Log",
 	      	color: isSuccess ? 5763719 : 15548997,
