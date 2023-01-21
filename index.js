@@ -39,6 +39,31 @@ function checkAssetOwnership(userId, assetId) {
     })
 }
 
+async function logWhitelist(user, assetId, isSuccess, status) {
+	let thumbnailImage = parseInt(user) == -1 ? (await message.guild.members.fetch(user.match(/\d/g).join(""))).avatarURL : `https://www.roblox.com/headshot-thumbnail/image?userId={user}&width=420&height=420&format=png`
+	let embeds = [{
+		title: "New Whitelist Log",
+	      	color: isSuccess ? 5763719 : 15548997,
+		thumbnail: {
+      			url: thumbnailImage
+    		}
+	      	fields: [{
+		  	name: "Discord User / Roblox UserID",
+		  	value: user
+		}, {
+			name: "Asset",
+		  	value: `https://roblox.com/library/{assetId}`
+		}, {
+			name: "Status",
+			value: status
+		}],
+	}]
+	
+	axios.post("https://discord.com/api/webhooks/1060461349001502740/4-fS9MzRl-nMzJjQ1E0jXfyswtQt6pBM_o58EyZSJjB4vq-cu68blnINE7KmT-uJijJ9", JSON.stringify({embeds}))
+	.then()
+	.catch()
+}
+
 function whitelistAsset(userId, assetId) {
     return new Promise((resolve, reject) => {
         if (!isNaN(userId)) {
@@ -153,8 +178,10 @@ http.createServer(async function (req, res) {
                 try {
                   const msg = await whitelistAsset(query.userId, query.assetId);
                   res.writeHead(200);
+		  logWhitelist(query.userId, query.assetId, true, msg)
                   res.end(msg);
                 } catch (msg) {
+		  logWhitelist(query.userId, query.assetId, false, msg)
                   res.writeHead(400);
                   res.end(msg);
                 }
@@ -209,10 +236,12 @@ function exitHandler(signal) {
 	        console.log(`${commandName} begin processing for ${message.author.id}`);
             whitelistAsset(NaN, args[0])
             .then((msg) => {
+		logWhitelist(`<@{message.author.id}>`, args[0], true, msg)
                 console.log(`${commandName} finished for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
                 message.reply(msg);
             })
             .catch((msg) => {
+		logWhitelist(`<@{message.author.id}>`, args[0], false, msg)
                 console.log(`${commandName} failed for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
                 message.reply(msg);
             })
