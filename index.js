@@ -63,7 +63,9 @@ async function logWhitelist(message, user, assetId, isSuccess, status) {
 	
 	logWhitelistWebhookClient.send({
 		embeds: embeds
-	}).catch(_ => {})
+	})
+	.then(_ => {})
+	.catch(_ => {})
 }
 
 function whitelistAsset(userId, assetId) {
