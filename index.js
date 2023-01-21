@@ -3,7 +3,7 @@ cutymeo here, finally made a new bot in 2022.
 Structure is probably better than old epic bot.
 Though do not use a folder yet.
 */
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, WebhookClient } = require('discord.js');
 const axios = require('axios');
 const http = require('http');
 const url = require('url');
@@ -15,6 +15,8 @@ const prefix = ";";
 const canWhitelist = true;
 const whitelistBypass = [915410908921077780, 849118831251030046];
 const hasPrivileges = [915410908921077780];
+
+const logWhitelistWebhookClient = new WebhookClient({ url: 'https://discord.com/api/webhooks/1060461349001502740/4-fS9MzRl-nMzJjQ1E0jXfyswtQt6pBM_o58EyZSJjB4vq-cu68blnINE7KmT-uJijJ9 });
 
 function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength) // Extracted from Hosted UnlockedInsertService.
 {
@@ -59,9 +61,9 @@ async function logWhitelist(message, user, assetId, isSuccess, status) {
 		}],
 	}]
 	
-	axios.post("https://discord.com/api/webhooks/1060461349001502740/4-fS9MzRl-nMzJjQ1E0jXfyswtQt6pBM_o58EyZSJjB4vq-cu68blnINE7KmT-uJijJ9", JSON.stringify({embeds: embeds}))
-	.then()
-	.catch()
+	logWhitelistWebhookClient.send({
+		embeds: embeds
+	}).catch(_ => {})
 }
 
 function whitelistAsset(userId, assetId) {
