@@ -16,7 +16,7 @@ const canWhitelist = true;
 const whitelistBypass = [915410908921077780, 849118831251030046];
 const hasPrivileges = [915410908921077780];
 
-const logWhitelistWebhookClient = new WebhookClient({ url: 'https://discord.com/api/webhooks/1060461349001502740/4-fS9MzRl-nMzJjQ1E0jXfyswtQt6pBM_o58EyZSJjB4vq-cu68blnINE7KmT-uJijJ9 });
+const logWhitelistWebhookClient = new WebhookClient({ url: 'https://discord.com/api/webhooks/1060461349001502740/4-fS9MzRl-nMzJjQ1E0jXfyswtQt6pBM_o58EyZSJjB4vq-cu68blnINE7KmT-uJijJ9' });
 
 function ExtractStringByBrackets(document, leftBracket, rightBracket, maxLength) // Extracted from Hosted UnlockedInsertService.
 {
