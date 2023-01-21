@@ -39,8 +39,8 @@ function checkAssetOwnership(userId, assetId) {
     })
 }
 
-async function logWhitelist(user, assetId, isSuccess, status) {
-	let thumbnailImage = user.search("<@") != -1 ? (await message.guild.members.fetch(user.match(/\d/g).join(""))).avatarURL : `https://www.roblox.com/headshot-thumbnail/image?userId=${user}&width=420&height=420&format=png`
+async function logWhitelist(message, user, assetId, isSuccess, status) {
+	let thumbnailImage = user.search("<@") != -1 ? message.author.avatarURL : `https://www.roblox.com/headshot-thumbnail/image?userId=${user}&width=420&height=420&format=png`
 	let embeds = [{
 		title: "New Whitelist Log",
 	      	color: isSuccess ? 5763719 : 15548997,
@@ -178,10 +178,10 @@ http.createServer(async function (req, res) {
                 try {
                   const msg = await whitelistAsset(query.userId, query.assetId);
                   res.writeHead(200);
-		  logWhitelist(query.userId, query.assetId, true, msg)
+		  logWhitelist(null, query.userId, query.assetId, true, msg)
                   res.end(msg);
                 } catch (msg) {
-		  logWhitelist(query.userId, query.assetId, false, msg)
+		  logWhitelist(null, query.userId, query.assetId, false, msg)
                   res.writeHead(400);
                   res.end(msg);
                 }
@@ -236,12 +236,12 @@ function exitHandler(signal) {
 	        console.log(`${commandName} begin processing for ${message.author.id}`);
             whitelistAsset(NaN, args[0])
             .then((msg) => {
-		logWhitelist(`<@{message.author.id}>`, args[0], true, msg)
+		logWhitelist(message, `<@{message.author.id}>`, args[0], true, msg)
                 console.log(`${commandName} finished for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
                 message.reply(msg);
             })
             .catch((msg) => {
-		logWhitelist(`<@{message.author.id}>`, args[0], false, msg)
+		logWhitelist(message, `<@{message.author.id}>`, args[0], false, msg)
                 console.log(`${commandName} failed for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
                 message.reply(msg);
             })
