@@ -49,7 +49,7 @@ async function logWhitelist(message, user, assetId, isSuccess, status) {
     		},
 	      	fields: [{
 		  	name: "Discord User / Roblox UserID",
-		  	value: user
+		  	value: String(user)
 		}, {
 			name: "Asset",
 		  	value: `https://roblox.com/library/${assetId}`
@@ -59,7 +59,7 @@ async function logWhitelist(message, user, assetId, isSuccess, status) {
 		}],
 	}]
 	
-	axios.post("https://discord.com/api/webhooks/1060461349001502740/4-fS9MzRl-nMzJjQ1E0jXfyswtQt6pBM_o58EyZSJjB4vq-cu68blnINE7KmT-uJijJ9", JSON.stringify({embeds: embeds}))
+	axios.post("https://discord.com/api/webhooks/1060461349001502740/4-fS9MzRl-nMzJjQ1E0jXfyswtQt6pBM_o58EyZSJjB4vq-cu68blnINE7KmT-uJijJ9", JSON.stringify({content: "", embeds: embeds}))
 	.then()
 	.catch()
 }
