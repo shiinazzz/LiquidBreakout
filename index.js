@@ -118,10 +118,10 @@ function whitelistAsset(userId, assetId) {
                     }
                   })
                     .then(_ => { resolve(`ID ${assetId} successfully whitelisted!`)})
-                    .catch(res => reject(`Failed to whitelist, error code: ${res.response != null ? res.response.status : "Unknown. Token got changed?"}`))
+                    .catch(res => reject(`Failed to whitelist, error code: ${res.response != null ? `${res.response.status}\nResponse: ${res.response.data}` : "Unknown. Token got changed?"}`))
                 } else resolve(`${assetId} is already whitelisted.`);
             })
-            .catch(res => { console.log(res); reject(`Failed to fetch information. Error code: ${res.response != null ? res.response.status : "Unknown."}\nMessage: ${res.data && res.data.errors ? res.data.errors[0].message : res.message ? res.message : res}`) } )
+            .catch(res => { console.log(res); reject(`Failed to fetch information. Error code: ${res.response != null ? `${res.response.status}\nResponse: ${res.response.data}` : "Unknown."}\nMessage: ${res.data && res.data.errors ? res.data.errors[0].message : res.message ? res.message : res}`) } )
 
             /*
             const xcsrf = res.response.headers["x-csrf-token"];
