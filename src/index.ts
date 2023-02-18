@@ -11,7 +11,11 @@ import url from "url";
 import path from "path";
 import dotenv from "dotenv";
 
-dotenv.config({ path: path.resolve(__dirname, "../dev_config/.env") });
+
+if (process.env["IsDevelopment"] != "0") {
+	print("Setting up development unit.")
+	dotenv.config({ path: path.resolve(__dirname, "../dev_config/.env") });
+}
 
 const cookie: string | undefined = process.env["LBCookie"];
 const token: string | undefined = process.env["BotToken"];
@@ -309,8 +313,6 @@ BotClient.on("messageCreate", async (message: Message): Promise<any> => {
 // Setup
 process.on("SIGINT", exitHandler);
 process.on("SIGTERM", exitHandler);
-
-if (process.env["IsDevelopment"] == "1") print("Development Unit set.");
 
 // Login
 BotClient.login(token);
