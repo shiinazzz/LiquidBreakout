@@ -13,8 +13,8 @@ const token = process.env.BotToken;
 const prefix = ";";
 
 const canWhitelist = true;
-const whitelistBypass = [915410908921077780, 849118831251030046];
-const hasPrivileges = [915410908921077780];
+const whitelistBypass = ["915410908921077780", "849118831251030046"];
+const hasPrivileges = ["915410908921077780"];
 
 const logWhitelistWebhookClient = new WebhookClient({ url: 'https://discord.com/api/webhooks/1060461349001502740/4-fS9MzRl-nMzJjQ1E0jXfyswtQt6pBM_o58EyZSJjB4vq-cu68blnINE7KmT-uJijJ9' });
 
@@ -262,7 +262,7 @@ function exitHandler(signal) {
           if (hasPrivileges.indexOf(message.author.id) == -1)
             return message.reply("You cannot use this command!");
 	  const broadcastMessage = args.join(" ");
-	  const broadcastChannel = 1041032381668282450;
+	  const broadcastChannel = "1041032381668282450";
           message.reply(`Broadcasting "${broadcastMessage}"...`);
           BotClient.channels.cache.get(broadcastChannel).send(broadcastMessage);
         } 
