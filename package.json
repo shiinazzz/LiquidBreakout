@@ -1,24 +1,16 @@
 {
   "name": "liquid-breakout-bot",
   "version": "1.0.0",
-<<<<<<< HEAD
   "description": "A discord bot in Node.JS, rewritten in TypeScript.",
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/index.ts"
-=======
-  "description": "A discord bot in Node.JS",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
->>>>>>> 0df2b7f6ad96f74c096d89a1306c20f8ce2b43e0
   },
   "author": "cutymeo",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.26.1",
     "discord.js": "^13.8.0",
-<<<<<<< HEAD
     "dotenv": "^16.0.3",
     "express": "^4.18.2"
   },
@@ -27,12 +19,6 @@
     "node": "^16.10.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
-=======
-    "express": "^4.18.2"
-  },
-  "devDependencies": {
-    "node": "^16.10.0"
->>>>>>> 0df2b7f6ad96f74c096d89a1306c20f8ce2b43e0
   },
   "keywords": []
 }
