@@ -258,7 +258,14 @@ function exitHandler(signal) {
             return message.reply("You cannot use this command!");
           message.reply("Force shutting down...");
           exitHandler("FORCE");
-        }
+        } else if (commandName == "broadcast") {
+          if (hasPrivileges.indexOf(message.author.id) == -1)
+            return message.reply("You cannot use this command!");
+	  const broadcastMessage = args.join(" ");
+	  const broadcastChannel = 1041032381668282450;
+          message.reply(`Broadcasting "${broadcastMessage}"...`);
+          BotClient.channels.cache.get(broadcastChannel).send(broadcastMessage);
+        } 
       }
     })
 
