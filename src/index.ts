@@ -4,30 +4,35 @@ First time using it lol.
 */
 
 import { AnyChannel, Client, Intents, Message, TextChannel, WebhookClient } from "discord.js";
+import fs from "fs";
 import axios from "axios";
 import http from "http";
 import url from "url";
+import { convertToNumber, convertToShort } from "./idConverter"
 
 import path from "path";
 import dotenv from "dotenv";
 
-
-if (process.env["IsDevelopment"] != "0") {
-	print("Setting up development unit.")
+if (fs.existsSync(path.resolve(__dirname, "../dev_config/.env"))) {
 	dotenv.config({ path: path.resolve(__dirname, "../dev_config/.env") });
 }
+if (process.env["IsDevelopment"] == "1")
+	print("Setting up development unit.")
 
 const cookie: string | undefined = process.env["LBCookie"];
 const token: string | undefined = process.env["BotToken"];
+let privilegeApiKey: string = process.env["PrivilegeApiKey"] || "LB_DEVTEST_PRIVILEGE_API_HOLDER_ABC_XYZ";
 
 const prefix: string = ";";
+const outputShortId = true;
 const defaultPresence: string = `${
 	process.env["IsDevelopment"] == "1" ? "<DEVELOPMENT UNIT> " : ""
 }Waiting for whitelisting request.`;
 
 const canWhitelist: boolean = true;
 const whitelistBypass: string[] = ["915410908921077780", "849118831251030046"];
-const hasPrivileges: string[] = ["915410908921077780"];
+const hasPrivileges: string[] = ["915410908921077780", "849118831251030046"];
+const hasReverseShortPrivileges: string[] = ["915410908921077780", "849118831251030046", "324812431165751298"];
 
 const logWhitelistWebhookClient = new WebhookClient({
 	url: "https://discord.com/api/webhooks/1060461349001502740/4-fS9MzRl-nMzJjQ1E0jXfyswtQt6pBM_o58EyZSJjB4vq-cu68blnINE7KmT-uJijJ9",
@@ -56,6 +61,9 @@ async function logWhitelist(
 	isSuccess: boolean,
 	status: string,
 ) {
+	if (process.env["IsDevelopment"] == "1")
+		return;
+
 	const thumbnailImage: string =
 		message && user.search("<@") != -1
 			? message.author.avatarURL() || ""
@@ -144,7 +152,8 @@ function whitelistAsset(userId: number | string, assetId: number | string): Prom
 							},
 						})
 							.then((_) => {
-								resolve(`ID ${assetId} successfully whitelisted!`);
+								resolve(`Successfully whitelisted ${outputShortId ? `! Your sharable ID is: ${convertToShort(assetId.toString())}` : "ID!"}`);
+								//resolve(`ID ${assetId} successfully whitelisted!`);
 							})
 							.catch((res) =>
 								reject(
@@ -155,7 +164,7 @@ function whitelistAsset(userId: number | string, assetId: number | string): Prom
 									}`,
 								),
 							);
-					} else resolve(`${assetId} is already whitelisted.`);
+					} else resolve(`ID is already whitelisted.${outputShortId ? ` Your sharable ID is: ${convertToShort(assetId.toString())}` : ""}`); //resolve(`${assetId} is already whitelisted.`);
 				})
 				.catch((res) => {
 					reject(
@@ -177,6 +186,7 @@ http.createServer(async function (req, res) {
 	var query = parsedUrl.query;
 	let assetId: string = query.assetId ? query.assetId.toString() : "NULL";
 	let userId: string = query.userId ? query.userId.toString() : "NULL";
+	let apiKey: string = query.apiKey ? query.apiKey.toString() : "NULL";
 
 	switch (parsedUrl.pathname) {
 		case "/whitelist":
@@ -199,6 +209,20 @@ http.createServer(async function (req, res) {
 					res.writeHead(400);
 					res.end(msg);
 				}
+				break;
+			}
+		case "/getnumberid":
+			if (assetId == "NULL") {
+				res.writeHead(400);
+				res.end("missing or invalid assetId in params");
+				break;
+			} else if (apiKey == "NULL" || apiKey != privilegeApiKey) {
+				res.writeHead(400);
+				res.end("missing or invalid apiKey in params");
+				break;
+			} else {
+				res.writeHead(200);
+				res.end(convertToNumber(assetId));
 				break;
 			}
 		default:
@@ -273,17 +297,19 @@ BotClient.on("messageCreate", async (message: Message): Promise<any> => {
 				// Will now attempt to automatically whitelist
 				print(`${commandName} begin processing for ${message.author.id}`);
 				whitelistAsset(NaN, args[0])
-					.then((msg) => {
+					.then(async (msg) => {
 						logWhitelist(message, `<@${message.author.id}>`, args[0], true, msg);
 						print(`${commandName} finished for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
-						message.reply(msg);
+						await message.reply(msg);
 						updatePresence(defaultPresence);
+						message.delete();
 					})
-					.catch((msg) => {
+					.catch(async (msg) => {
 						logWhitelist(message, `<@${message.author.id}>`, args[0], false, msg);
 						print(`${commandName} failed for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
-						message.reply(msg);
+						await message.reply(msg);
 						updatePresence(defaultPresence);
+						message.delete();
 					});
 			} else {
 				updatePresence(defaultPresence);
@@ -306,6 +332,17 @@ BotClient.on("messageCreate", async (message: Message): Promise<any> => {
 			const gotChannel: AnyChannel | undefined = BotClient.channels.cache.get(broadcastChannel);
 			if (gotChannel) (gotChannel as TextChannel).send(broadcastMessage);
 			updatePresence(defaultPresence);
+		} else if (commandName == "getnumberid") {
+			if (hasReverseShortPrivileges.indexOf(message.author.id) == -1) return message.reply("You cannot use this command!");
+			message.reply(`\`\`${args[0]}\`\` converted to \`\`${convertToNumber(args[0])}\`\``);
+		} else if (commandName == "setapikey") {
+			if (hasPrivileges.indexOf(message.author.id) == -1) return message.reply("You cannot use this command!");
+			privilegeApiKey = args[0];
+			message.reply(`Privilege API key has been set to '${args[0]}'.`);
+		} else if (commandName == "revokeapikey") {
+			if (hasPrivileges.indexOf(message.author.id) == -1) return message.reply("You cannot use this command!");
+			message.reply("Privilege API key has been revoked.");
+			privilegeApiKey = "REVOKED";
 		}
 	}
 });
