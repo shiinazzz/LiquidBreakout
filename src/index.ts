@@ -152,7 +152,7 @@ function whitelistAsset(userId: number | string, assetId: number | string): Prom
 							},
 						})
 							.then((_) => {
-								resolve(`Successfully whitelisted ${outputShortId ? `! Your sharable ID is: ${convertToShort(assetId.toString())}` : "ID!"}`);
+								resolve(`Successfully whitelisted ${outputShortId ? `! Your shareable ID is: ${convertToShort(assetId.toString())}` : "ID!"}`);
 								//resolve(`ID ${assetId} successfully whitelisted!`);
 							})
 							.catch((res) =>
@@ -164,7 +164,7 @@ function whitelistAsset(userId: number | string, assetId: number | string): Prom
 									}`,
 								),
 							);
-					} else resolve(`ID is already whitelisted.${outputShortId ? ` Your sharable ID is: ${convertToShort(assetId.toString())}` : ""}`); //resolve(`${assetId} is already whitelisted.`);
+					} else resolve(`ID is already whitelisted.${outputShortId ? ` Your shareable ID is: ${convertToShort(assetId.toString())}` : ""}`); //resolve(`${assetId} is already whitelisted.`);
 				})
 				.catch((res) => {
 					reject(
