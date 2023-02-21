@@ -3,6 +3,8 @@ Liquid Breakout bot, in TypeScript.
 First time using it lol.
 */
 
+// TODO: Change to new commands structure (splited into files)
+
 import { AnyChannel, Client, Intents, Message, TextChannel, WebhookClient } from "discord.js";
 import fs from "fs";
 import axios from "axios";
@@ -27,7 +29,7 @@ const prefix: string = ";";
 const outputShortId = true;
 const defaultPresence: string = `${
 	process.env["IsDevelopment"] == "1" ? "<DEVELOPMENT UNIT> " : ""
-}Waiting for whitelisting request.`;
+}Pending.`;
 
 const canWhitelist: boolean = true;
 const whitelistBypass: string[] = ["915410908921077780", "849118831251030046"];
@@ -259,7 +261,7 @@ function updatePresence(activityName: string) {
 	let botUser = BotClient.user;
 	if (botUser) {
 		print(`Updating presence to ${activityName}`);
-		botUser.setActivity(`${activityName} | Prefix: ${prefix} | Made by cutymeo.`, {
+		botUser.setActivity(`${activityName} | Run ${prefix}help | Made by cutymeo.`, {
 			type: "WATCHING",
 			//url: "https://www.twitch.tv/monstercat",
 		});
@@ -343,6 +345,8 @@ BotClient.on("messageCreate", async (message: Message): Promise<any> => {
 			if (hasPrivileges.indexOf(message.author.id) == -1) return message.reply("You cannot use this command!");
 			message.reply("Privilege API key has been revoked.");
 			privilegeApiKey = "REVOKED";
+		} else if (commandName == "help") {
+			message.reply(";help: This message\n;whitelist [id]: Whitelist a map\n;replaygameplay: ????")
 		}
 	}
 });
