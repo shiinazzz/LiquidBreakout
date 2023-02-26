@@ -35,7 +35,7 @@ const defaultPresence: string = `${
 	isDevUnit ? "<DEVELOPMENT UNIT> " : ""
 }Pending.`;
 
-const canWhitelist: boolean = true;
+const canWhitelist: boolean = false;
 const whitelistBypass: string[] = ["915410908921077780", "849118831251030046"];
 const hasPrivileges: string[] = ["915410908921077780", "849118831251030046"];
 const hasReverseShortPrivileges: string[] = ["915410908921077780", "849118831251030046", "324812431165751298"];
@@ -196,6 +196,11 @@ http.createServer(async function (req, res) {
 
 	switch (parsedUrl.pathname) {
 		case "/whitelist":
+			if (!canWhitelist) {
+				res.writeHead(400);
+				res.end("Automatic whitelisting is disabled for the time being.");
+				break;
+			}
 			if (assetId == "NULL" || isNaN(parseInt(assetId))) {
 				res.writeHead(400);
 				res.end("missing or invalid assetId in params");
