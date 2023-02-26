@@ -18,8 +18,12 @@ import dotenv from "dotenv";
 if (fs.existsSync(path.resolve(__dirname, "../dev_config/.env"))) {
 	dotenv.config({ path: path.resolve(__dirname, "../dev_config/.env") });
 }
-if (process.env["IsDevelopment"] == "1")
+
+let isDevUnit: boolean = false;
+if (process.env["IsDevelopment"] == "1") {
+	isDevUnit = true;
 	print("Setting up development unit.")
+}
 
 const cookie: string | undefined = process.env["LBCookie"];
 const token: string | undefined = process.env["BotToken"];
@@ -28,7 +32,7 @@ let privilegeApiKey: string = process.env["PrivilegeApiKey"] || "LB_DEVTEST_PRIV
 const prefix: string = ";";
 const outputShortId = true;
 const defaultPresence: string = `${
-	process.env["IsDevelopment"] == "1" ? "<DEVELOPMENT UNIT> " : ""
+	isDevUnit ? "<DEVELOPMENT UNIT> " : ""
 }Pending.`;
 
 const canWhitelist: boolean = true;
@@ -63,7 +67,7 @@ async function logWhitelist(
 	isSuccess: boolean,
 	status: string,
 ) {
-	if (process.env["IsDevelopment"] == "1")
+	if (isDevUnit)
 		return;
 
 	const thumbnailImage: string =
@@ -254,7 +258,8 @@ const BotClient: Client = new Client({
 function exitHandler(signal: string) {
 	print(`Received ${signal}, terminating.`);
 	BotClient.destroy();
-	process.exit();
+	if (!isDevUnit)
+		process.exit();
 }
 
 function updatePresence(activityName: string) {
