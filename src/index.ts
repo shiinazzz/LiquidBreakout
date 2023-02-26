@@ -69,7 +69,7 @@ async function logWhitelist(
 	const thumbnailImage: string =
 		message && user.search("<@") != -1
 			? message.author.avatarURL() || ""
-			: `https://www.roblox.com/headshot-thumbnail/image?userId=${user}&width=420&height=420&format=png`;
+			: (await axios(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user}&size=150x150&format=Png&isCircular=false`)).data.data.imageUrl;
 	let embeds: any = [
 		{
 			title: "New Whitelist Log",
