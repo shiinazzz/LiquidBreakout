@@ -35,7 +35,7 @@ const defaultPresence: string = `${
 	isDevUnit ? "<DEVELOPMENT UNIT> " : ""
 }Pending.`;
 
-const canWhitelist: boolean = false;
+const canWhitelist: boolean = true;
 const whitelistBypass: string[] = ["915410908921077780", "849118831251030046"];
 const hasPrivileges: string[] = ["915410908921077780", "849118831251030046"];
 const hasReverseShortPrivileges: string[] = ["915410908921077780", "849118831251030046", "324812431165751298"];
@@ -131,7 +131,7 @@ function whitelistAsset(userId: number | string, assetId: number | string): Prom
 				return reject("Cannot get x-csrf-token.");
 			}
 			axios({
-				url: "https://api.roblox.com/marketplace/productinfo?assetId=" + assetId,
+				url: `https://economy.roblox.com/v2/assets/${assetId}/details`,
 				method: "GET",
 			})
 				.then(async (res) => {
