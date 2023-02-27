@@ -67,13 +67,12 @@ async function logWhitelist(
 	isSuccess: boolean,
 	status: string,
 ) {
-	if (isDevUnit)
-		return;
+	if (isDevUnit == true) return;
 
 	const thumbnailImage: string =
 		message && user.search("<@") != -1
 			? message.author.avatarURL() || ""
-			: (await axios(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user}&size=150x150&format=Png&isCircular=false`)).data.data.imageUrl;
+			: (await axios(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user}&size=150x150&format=Png&isCircular=false`)).data.data[0].imageUrl;
 	let embeds: any = [
 		{
 			title: "New Whitelist Log",
