@@ -1,5 +1,5 @@
 const convertAlphabets = {
-    "alphabet": "123456789*_=+-/.aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ",
+    "alphabet": "123456789*=+-aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ",
     "decimals": "0123456789",
 }
 
@@ -11,7 +11,7 @@ function reverseString(inputStr: string): string {
 
         let reversed: string = charArray.join("");
         return reversed;
-    });
+    }).reverse();
 
     let reversedStr: string = reversedStrArray.join(" ");
     return reversedStr;
@@ -36,8 +36,12 @@ function baseConvert(inputStr: string, translation: string, newTranslation: stri
         while (x > 0) {
             let digitVal: number = x % newBaseVal;
             digitVal -= shift ? 1 : 0;
+            let appendNew = digitVal == -1 ? "0" : newTranslation[digitVal];
 
-            result = `${digitVal == 0 ? "0" : newTranslation[digitVal]}${result}`;
+            if (appendNew == undefined)
+                return shift ? reverseString(`ID Error: ${digitVal} index is out of range`) : `ID Error: ${digitVal} index is out of range`;
+
+            result = `${appendNew}${result}`;
             x = Math.floor(x / newBaseVal);
         }
 

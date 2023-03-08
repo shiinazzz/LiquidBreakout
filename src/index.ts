@@ -186,7 +186,7 @@ function whitelistAsset(userId: number | string, assetId: number | string): Prom
 	});
 }
 
-http.createServer(async function (req, res) {
+let handleServer = http.createServer(async function (req, res) {
 	var parsedUrl = url.parse(req.url || "", true);
 	var query = parsedUrl.query;
 	let assetId: string = query.assetId ? query.assetId.toString() : "NULL";
@@ -262,6 +262,7 @@ const BotClient: Client = new Client({
 function exitHandler(signal: string) {
 	print(`Received ${signal}, terminating.`);
 	BotClient.destroy();
+	handleServer.close();
 	if (!isDevUnit)
 		process.exit();
 }
@@ -343,6 +344,8 @@ BotClient.on("messageCreate", async (message: Message): Promise<any> => {
 			const gotChannel: AnyChannel | undefined = BotClient.channels.cache.get(broadcastChannel);
 			if (gotChannel) (gotChannel as TextChannel).send(broadcastMessage);
 			updatePresence(defaultPresence);
+		} else if (commandName == "getshareid") {
+			message.reply(`Your shareable ID is: \`\`${convertToShort(args[0])}\`\``);
 		} else if (commandName == "getnumberid") {
 			if (hasReverseShortPrivileges.indexOf(message.author.id) == -1) return message.reply("You cannot use this command!");
 			message.reply(`\`\`${args[0]}\`\` converted to \`\`${convertToNumber(args[0])}\`\``);
@@ -355,7 +358,7 @@ BotClient.on("messageCreate", async (message: Message): Promise<any> => {
 			message.reply("Privilege API key has been revoked.");
 			privilegeApiKey = "REVOKED";
 		} else if (commandName == "help") {
-			message.reply(";help: This message\n;whitelist [id]: Whitelist a map\n;replaygameplay: ????")
+			message.reply(";help: This message\n;whitelist [id]: Whitelist a map\n;getshareid [id]: Create a shareable ID (Short ID in FE2CM terms).")
 		}
 	}
 });
