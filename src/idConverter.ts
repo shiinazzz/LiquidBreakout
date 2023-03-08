@@ -23,7 +23,7 @@ function baseConvert(inputStr: string, translation: string, newTranslation: stri
 
     for (let i = 0; i < inputStr.length; i++) {
         const digit: string = inputStr[i];
-        let digitIndex: number = translation.indexOf(digit);
+        let digitIndex: number = translation.indexOf(digit) + 1;
         digitIndex += shift ? 0 : 1
 
         x = x * baseValue + digitIndex
