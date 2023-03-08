@@ -346,19 +346,24 @@ BotClient.on("messageCreate", async (message: Message): Promise<any> => {
 			updatePresence(defaultPresence);
 		} else if (commandName == "getshareid") {
 			message.reply(`Your shareable ID is: \`\`${convertToShort(args[0])}\`\``);
+			updatePresence(defaultPresence);
 		} else if (commandName == "getnumberid") {
 			if (hasReverseShortPrivileges.indexOf(message.author.id) == -1) return message.reply("You cannot use this command!");
 			message.reply(`\`\`${args[0]}\`\` converted to \`\`${convertToNumber(args[0])}\`\``);
+			updatePresence(defaultPresence);
 		} else if (commandName == "setapikey") {
 			if (hasPrivileges.indexOf(message.author.id) == -1) return message.reply("You cannot use this command!");
 			privilegeApiKey = args[0];
 			message.reply(`Privilege API key has been set to '${args[0]}'.`);
+			updatePresence(defaultPresence);
 		} else if (commandName == "revokeapikey") {
 			if (hasPrivileges.indexOf(message.author.id) == -1) return message.reply("You cannot use this command!");
 			message.reply("Privilege API key has been revoked.");
 			privilegeApiKey = "REVOKED";
+			updatePresence(defaultPresence);
 		} else if (commandName == "help") {
-			message.reply(";help: This message\n;whitelist [id]: Whitelist a map\n;getshareid [id]: Create a shareable ID (Short ID in FE2CM terms).")
+			message.reply(";help: This message\n;whitelist [id]: Whitelist a map\n;getshareid [id]: Create a shareable ID (Short ID in FE2CM terms).");
+			updatePresence(defaultPresence);
 		}
 	}
 });
