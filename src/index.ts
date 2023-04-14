@@ -129,8 +129,10 @@ function whitelistAsset(userId: number | string, assetId: number | string): Prom
 			if (!xcsrf) {
 				return reject(`Cannot get x-csrf-token.\nSend this to the developer: Error: ${
 										res.response != null
-											? `\nCode: ${res.response.status}\nResponse: ${res.response.data}`
-											: "Unknown. Possible change to Roblox API?"}`);
+											? `\nCode: ${res.response.status}\nResponse: ${res.response.statusText}`
+											: "Unknown. Possible change to Roblox API?"}\nMessage: ${
+							res.data && res.data.errors ? res.data.errors[0].message : res.message ? res.message : res
+						}`);
 			}
 			axios({
 				url: `https://economy.roblox.com/v2/assets/${assetId}/details`,
