@@ -67,7 +67,7 @@ async function logWhitelist(
 	isSuccess: boolean,
 	status: string,
 ) {
-	if (isDevUnit == true) return;
+	if (isDevUnit) return;
 
 	const thumbnailImage: string =
 		message && user.search("<@") != -1
@@ -127,7 +127,10 @@ function whitelistAsset(userId: number | string, assetId: number | string): Prom
 		}).catch((res) => {
 			const xcsrf: string | undefined = res.response.headers["x-csrf-token"];
 			if (!xcsrf) {
-				return reject("Cannot get x-csrf-token.");
+				return reject(`Cannot get x-csrf-token.\nSend this to the developer: Error: ${
+										res.response != null
+											? `\nCode: ${res.response.status}\nResponse: ${res.response.data}`
+											: "Unknown. Possible change to Roblox API?"}`);
 			}
 			axios({
 				url: `https://economy.roblox.com/v2/assets/${assetId}/details`,
