@@ -119,7 +119,7 @@ function whitelistAsset(userId: number | string, assetId: number | string): Prom
 				});
 		}
 		axios({
-			url: "https://auth.roblox.com/v1/logout",
+			url: "https://auth.roblox.com/v2/logout",
 			method: "POST",
 			headers: {
 				cookie: `.ROBLOSECURITY=${cookie}`,
