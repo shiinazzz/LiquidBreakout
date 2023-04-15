@@ -268,7 +268,7 @@ function exitHandler(signal: string) {
 	print(`Received ${signal}, terminating.`);
 	BotClient.destroy();
 	handleServer.close();
-	if (!isDevUnit)
+	if (isDevUnit)
 		process.exit();
 }
 
@@ -319,14 +319,14 @@ BotClient.on("messageCreate", async (message: Message): Promise<any> => {
 						print(`${commandName} finished for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
 						await message.reply(msg);
 						updatePresence(defaultPresence);
-						message.delete();
+						if (message.guild != null) message.delete();
 					})
 					.catch(async (msg) => {
 						logWhitelist(message, `<@${message.author.id}>`, args[0], false, msg);
 						print(`${commandName} failed for ${message.author.id} message = ${msg}, ID = ${args[0]}`);
 						await message.reply(msg);
 						updatePresence(defaultPresence);
-						message.delete();
+						if (message.guild != null) message.delete();
 					});
 			} else {
 				updatePresence(defaultPresence);
