@@ -1,11 +1,13 @@
-const OutputCodes = {
-    "WhitelistSuccess": 0,
-    "ItemNotOwnedByUser": 1
-};
+import axios from "axios";
 
-function LookupNameByOutputCode(Code: number) {
-    return 
-}
+const OutputCodes = {
+    "WHITELIST_SUCCESS": 0,
+    "ALREADY_WHITELISTED": 1,
+    "ERR_CANNOT_WHITELIST": 3,
+    "ERR_NO_SESSION_TOKEN": 4, // Require a cookie change immediately
+    "ERR_ITEM_NOT_OWNED_BY_USER": 5,
+    "ERR_INVALID_ITEM": 6
+};
 
 function reverseString(inputStr: string): string {
     let strArray: Array<string> = inputStr.split(" ");
@@ -70,27 +72,130 @@ class IDConverterClass {
     }
 }
 
-const IDConverter = new IDConverterClass(
-    "123456789*=+-aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ",
-    "0123456789"
-)
-
 function CreateOutput(Code: number, Message: string?, Data: {any: any}) {
     return {"code": Code, "message": Message, data: Data};
 }
 
-async function CheckIfUserOwnItem(AssetId: number, UserId: number): boolean {
-	try {
-		return (await axios(`https://inventory.roblox.com/v1/users/${userId}/items/Asset/${assetId}/is-owned`)).data
-	} catch(_) {
-        return false;
+class Backend {
+    private _idConverter: IDConverterClass;
+    public RobloxToken: string;
+
+    public LookupNameByOutputCode(Code: number) {
+        return Object.keys(OutputCodes).find(key => OutputCodes[key] === Code) || "ERR_UNKNOWN";
+    }
+
+    public async CheckIfUserOwnItem(AssetId: number, UserId: number): boolean {
+        try {
+            return (await axios(`https://inventory.roblox.com/v1/users/${userId}/items/Asset/${assetId}/is-owned`)).data
+        } catch(_) {
+            return false;
+        }
+    }
+    public async WhitelistAsset(AssetId: number, UserId: number) {
+        const CreatorOwnedItem = await this.CheckIfUserOwnItem(AssetId, 138801491);
+        if (!CreatorOwnedItem)
+            return CreateOutput(OutputCodes.ALREADY_WHITELISTED);
+    
+        const OwnItem: boolean = await this.CheckIfUserOwnItem(AssetId, UserId);
+        if (!OwnItem)
+            return CreateOutput(
+                OutputCodes.ERR_ITEM_NOT_OWNED_BY_USER,
+                `Cannot whitelist: ${AssetId} is not owned by requested user.`
+            );
+        
+        let SessionToken: string | undefined = undefined;
+        try {
+            await axios({
+                url: "https://auth.roblox.com/v2/logout",
+                method: "POST",
+                headers: {
+                    cookie: `.ROBLOSECURITY=${cookie}`,
+                },
+            });
+        } catch (AxiosResponse) {
+            SessionToken = AxiosResponse.response.headers["x-csrf-token"];
+        }
+        if (SessionToken == undefined)
+            return CreateOutput(
+                OutputCodes.ERR_NO_SESSION_TOKEN,
+                "Cannot whitelist: Failed to obtain session token.\nContact the developer."
+            );
+        
+        let ItemData, ErrorResponse;
+        try {
+            ItemData = (await axios({
+                url: `https://economy.roblox.com/v2/assets/${assetId}/details`,
+                method: "GET",
+            })).data;
+        } catch (AxiosResponse) { ErrorResponse = AxiosResponse; }
+        if (!ItemData)
+            return CreateOutput(
+                OutputCodes.ERR_INVALID_ITEM,
+                `Cannot whitelist: Failed to obtain item data.`,
+                {
+                    "robloxErrorCode": ErrorResponse.response != null ? res.response.status : -1,
+                    "robloxMessage": ErrorResponse.response != null ? res.response.statusText : null,
+                }
+            );
+        
+        const ProductId = ItemData.ProductId;
+        const AssetType = ItemData.AssetTypeId;
+        const IsOnSale = ItemData.IsPublicDomain;
+        const ItemPrice = parseInt(ItemData.PriceInRobux);
+    
+        if (!IsOnSale)
+            return CreateOutput(
+                OutputCodes.ERR_INVALID_ITEM,
+                `Cannot whitelist: Item is not on-sale.`
+            );
+        else if (AssetType != 10)
+            return CreateOutput(
+                OutputCodes.ERR_INVALID_ITEM,
+                `Cannot whitelist: Item type is not a Model`
+            );
+        else if (!isNaN(ItemPrice) && ItemPrice > 0)
+            return CreateOutput(
+                OutputCodes.ERR_INVALID_ITEM,
+                `Cannot whitelist: Item costs Robux.`
+            );
+        else {
+            try {
+                await axios({
+                    url: `https://economy.roblox.com/v1/purchases/products/${productId}`,
+                    method: "POST",
+                    headers: {
+                        cookie: `.ROBLOSECURITY=${cookie}`,
+                        "x-csrf-token": SessionToken,
+                    },
+                    data: {
+                        expectedCurrency: 1,
+                        expectedPrice: 0,
+                    },
+                });
+                return CreateOutput(
+                    OutputCodes.WHITELIST_SUCCESS,
+                    null,
+                    {"shareableId": this._idConverter.Short(AssetId.toString())}
+                );
+            } catch (AxiosResponse) {
+                return CreateOutput(
+                    OutputCodes.ERR_CANNOT_WHITELIST,
+                    null,
+                    {
+                        "robloxErrorCode": AxiosResponse.response != null ? AxiosResponse.response.status : -1,
+                        "robloxMessage": AxiosResponse.response != null ? AxiosResponse.response.statusText : null,
+                    }
+                )
+            }
+        }
+    }    
+
+    constructor(SetRobloxToken: string) {
+        this._idConverter = new IDConverterClass(
+            "123456789*=+-aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ",
+            "0123456789"
+        );
+        this.RobloxToken = SetRobloxToken;
     }
 }
-
-async function WhitelistAsset(AssetId: number, UserId: number) {
-    const OwnItem: boolean = await CheckIfUserOwnItem(AssetId, UserId);
-    if (!OwnItem)
-        return CreateOutput()
-}
-
-export {IDConverter, WhitelistAsset}
+export = Backend
