@@ -1,14 +1,5 @@
 import axios from "axios";
 
-const OutputCodes = {
-    "WHITELIST_SUCCESS": 0,
-    "ALREADY_WHITELISTED": 1,
-    "ERR_CANNOT_WHITELIST": 3,
-    "ERR_NO_SESSION_TOKEN": 4, // Require a cookie change immediately
-    "ERR_ITEM_NOT_OWNED_BY_USER": 5,
-    "ERR_INVALID_ITEM": 6
-};
-
 function reverseString(inputStr: string): string {
     let strArray: Array<string> = inputStr.split(" ");
     let reversedStrArray: Array<string> = strArray.map((word) => {
@@ -72,69 +63,80 @@ class IDConverterClass {
     }
 }
 
-function CreateOutput(Code: number, Message: string?, Data: {any: any}) {
+function CreateOutput(Code: number, Message?: string | null, Data?: any) {
     return {"code": Code, "message": Message, data: Data};
 }
 
 class Backend {
-    private _idConverter: IDConverterClass;
+    public IDConverter: IDConverterClass;
     public RobloxToken: string;
+    public PrivilegeApiKey: string;
+    public OutputCodes: {[index: string]: number} = {
+        "WHITELIST_SUCCESS": 0,
+        "ALREADY_WHITELISTED": 1,
+        "ERR_CANNOT_WHITELIST": 3,
+        "ERR_NO_SESSION_TOKEN": 4, // Require a cookie change immediately
+        "ERR_ITEM_NOT_OWNED_BY_USER": 5,
+        "ERR_INVALID_ITEM": 6
+    };
 
     public LookupNameByOutputCode(Code: number) {
-        return Object.keys(OutputCodes).find(key => OutputCodes[key] === Code) || "ERR_UNKNOWN";
+        return Object.keys(this.OutputCodes).find(key => this.OutputCodes[key] === Code) || "ERR_UNKNOWN";
     }
 
-    public async CheckIfUserOwnItem(AssetId: number, UserId: number): boolean {
+    public async CheckIfUserOwnItem(AssetId: number, UserId: number) {
         try {
-            return (await axios(`https://inventory.roblox.com/v1/users/${userId}/items/Asset/${assetId}/is-owned`)).data
+            return (await axios(`https://inventory.roblox.com/v1/users/${UserId}/items/Asset/${AssetId}/is-owned`)).data
         } catch(_) {
             return false;
         }
     }
     public async WhitelistAsset(AssetId: number, UserId: number) {
         const CreatorOwnedItem = await this.CheckIfUserOwnItem(AssetId, 138801491);
-        if (!CreatorOwnedItem)
-            return CreateOutput(OutputCodes.ALREADY_WHITELISTED);
-    
-        const OwnItem: boolean = await this.CheckIfUserOwnItem(AssetId, UserId);
-        if (!OwnItem)
+        if (CreatorOwnedItem)
+            return CreateOutput(this.OutputCodes.ALREADY_WHITELISTED);
+
+        if (!Number.isNaN(UserId)) {
+            const OwnItem: boolean = await this.CheckIfUserOwnItem(AssetId, UserId);
+            if (!OwnItem)
             return CreateOutput(
-                OutputCodes.ERR_ITEM_NOT_OWNED_BY_USER,
+                this.OutputCodes.ERR_ITEM_NOT_OWNED_BY_USER,
                 `Cannot whitelist: ${AssetId} is not owned by requested user.`
             );
-        
+        }
+
         let SessionToken: string | undefined = undefined;
         try {
             await axios({
                 url: "https://auth.roblox.com/v2/logout",
                 method: "POST",
                 headers: {
-                    cookie: `.ROBLOSECURITY=${cookie}`,
+                    cookie: `.ROBLOSECURITY=${this.RobloxToken}`,
                 },
             });
-        } catch (AxiosResponse) {
+        } catch (AxiosResponse: any) {
             SessionToken = AxiosResponse.response.headers["x-csrf-token"];
         }
         if (SessionToken == undefined)
             return CreateOutput(
-                OutputCodes.ERR_NO_SESSION_TOKEN,
+                this.OutputCodes.ERR_NO_SESSION_TOKEN,
                 "Cannot whitelist: Failed to obtain session token.\nContact the developer."
             );
         
         let ItemData, ErrorResponse;
         try {
             ItemData = (await axios({
-                url: `https://economy.roblox.com/v2/assets/${assetId}/details`,
+                url: `https://economy.roblox.com/v2/assets/${AssetId}/details`,
                 method: "GET",
             })).data;
-        } catch (AxiosResponse) { ErrorResponse = AxiosResponse; }
+        } catch (AxiosResponse: any) { ErrorResponse = AxiosResponse; }
         if (!ItemData)
             return CreateOutput(
-                OutputCodes.ERR_INVALID_ITEM,
+                this.OutputCodes.ERR_INVALID_ITEM,
                 `Cannot whitelist: Failed to obtain item data.`,
                 {
-                    "robloxErrorCode": ErrorResponse.response != null ? res.response.status : -1,
-                    "robloxMessage": ErrorResponse.response != null ? res.response.statusText : null,
+                    "robloxErrorCode": ErrorResponse.response != null ? ErrorResponse.response.status : -1,
+                    "robloxMessage": ErrorResponse.response != null ? ErrorResponse.response.statusText : null,
                 }
             );
         
@@ -145,26 +147,26 @@ class Backend {
     
         if (!IsOnSale)
             return CreateOutput(
-                OutputCodes.ERR_INVALID_ITEM,
+                this.OutputCodes.ERR_INVALID_ITEM,
                 `Cannot whitelist: Item is not on-sale.`
             );
         else if (AssetType != 10)
             return CreateOutput(
-                OutputCodes.ERR_INVALID_ITEM,
+                this.OutputCodes.ERR_INVALID_ITEM,
                 `Cannot whitelist: Item type is not a Model`
             );
         else if (!isNaN(ItemPrice) && ItemPrice > 0)
             return CreateOutput(
-                OutputCodes.ERR_INVALID_ITEM,
+                this.OutputCodes.ERR_INVALID_ITEM,
                 `Cannot whitelist: Item costs Robux.`
             );
         else {
             try {
                 await axios({
-                    url: `https://economy.roblox.com/v1/purchases/products/${productId}`,
+                    url: `https://economy.roblox.com/v1/purchases/products/${ProductId}`,
                     method: "POST",
                     headers: {
-                        cookie: `.ROBLOSECURITY=${cookie}`,
+                        cookie: `.ROBLOSECURITY=${this.RobloxToken}`,
                         "x-csrf-token": SessionToken,
                     },
                     data: {
@@ -173,13 +175,13 @@ class Backend {
                     },
                 });
                 return CreateOutput(
-                    OutputCodes.WHITELIST_SUCCESS,
+                    this.OutputCodes.WHITELIST_SUCCESS,
                     null,
-                    {"shareableId": this._idConverter.Short(AssetId.toString())}
+                    {"shareableId": this.IDConverter.Short(AssetId.toString())}
                 );
-            } catch (AxiosResponse) {
+            } catch (AxiosResponse: any) {
                 return CreateOutput(
-                    OutputCodes.ERR_CANNOT_WHITELIST,
+                    this.OutputCodes.ERR_CANNOT_WHITELIST,
                     null,
                     {
                         "robloxErrorCode": AxiosResponse.response != null ? AxiosResponse.response.status : -1,
@@ -190,12 +192,20 @@ class Backend {
         }
     }    
 
-    constructor(SetRobloxToken: string) {
-        this._idConverter = new IDConverterClass(
+    constructor(SetRobloxToken?: string, PrivilegeKey?: string) {
+        if (SetRobloxToken == undefined)
+            throw new Error("Backend: No Roblox Token was supplied.")
+        if (PrivilegeKey == undefined)
+            PrivilegeKey = "";
+
+        this.IDConverter = new IDConverterClass(
             "123456789*=+-aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ",
             "0123456789"
         );
         this.RobloxToken = SetRobloxToken;
+        this.PrivilegeApiKey = PrivilegeKey;
+
+        console.log("Backend initialize");
     }
 }
-export = Backend
+export default Backend;
