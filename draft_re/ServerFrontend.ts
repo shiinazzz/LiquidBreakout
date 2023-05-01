@@ -43,10 +43,10 @@ class ServerFrontend {
         });
         this.ServerApp.get('/getnumberid', (Request: Request, Response: Response) => {
             const RequestQuery = Request.query;
-            let AssetId: number = RequestQuery.assetId ? parseInt(RequestQuery.assetId.toString()) : NaN;
+            let AssetId: string | undefined = RequestQuery.assetId ? RequestQuery.assetId.toString() : undefined;
             let ApiKey: string = RequestQuery.apiKey ? RequestQuery.apiKey.toString() : "NULL";
 
-            if (isNaN(AssetId)) {
+            if (AssetId == undefined) {
                 Response.status(400).send("Invalid assetId param.")
 				return;
 			}
