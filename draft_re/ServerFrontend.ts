@@ -20,13 +20,11 @@ class ServerFrontend {
             let UserId: number = RequestQuery.userId ? parseInt(RequestQuery.userId.toString()) : NaN;
 
             if (isNaN(AssetId)) {
-                Response.sendStatus(400);
-                Response.send("Invalid assetId param.")
+                Response.status(400).send("Invalid assetId param.")
 				return;
 			}
             if (isNaN(UserId)) {
-				Response.sendStatus(400);
-                Response.send("Invalid userId param.")
+				Response.status(400).send("Invalid userId param.")
 				return;
             }
 
@@ -37,8 +35,7 @@ class ServerFrontend {
             let AssetId: number = RequestQuery.assetId ? parseInt(RequestQuery.assetId.toString()) : NaN;
 
             if (isNaN(AssetId)) {
-                Response.sendStatus(400);
-                Response.send("Invalid assetId param.")
+                Response.status(400).send("Invalid assetId param.")
 				return;
 			}
 
@@ -50,13 +47,11 @@ class ServerFrontend {
             let ApiKey: string = RequestQuery.apiKey ? RequestQuery.apiKey.toString() : "NULL";
 
             if (isNaN(AssetId)) {
-                Response.sendStatus(400);
-                Response.send("Invalid assetId param.")
+                Response.status(400).send("Invalid assetId param.")
 				return;
 			}
             if (ApiKey == "NULL" || ApiKey != this._backend.PrivilegeApiKey) {
-				Response.sendStatus(400);
-                Response.send("Invalid apiKey param or API key has been invalidated.")
+				Response.status(400).send("Invalid apiKey param or API key has been invalidated.")
 				return;
             }
 
