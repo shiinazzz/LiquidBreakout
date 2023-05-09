@@ -1,4 +1,6 @@
 import axios from "axios";
+import decodeAudio from "audio-decode"
+import { decode } from "punycode";
 
 function reverseString(inputStr: string): string {
     let strArray: Array<string> = inputStr.split(" ");
@@ -191,6 +193,56 @@ class Backend {
             }
         }
     }    
+
+    public async GetSoundFrequenciesData(SoundId: number) {
+        let SessionToken: string | undefined = undefined;
+        try {
+            await axios({
+                url: "https://auth.roblox.com/v2/logout",
+                method: "POST",
+                headers: {
+                    cookie: `.ROBLOSECURITY=${this.RobloxToken}`,
+                },
+            });
+        } catch (AxiosResponse: any) {
+            SessionToken = AxiosResponse.response.headers["x-csrf-token"];
+        }
+        if (SessionToken == undefined)
+            return CreateOutput(
+                this.OutputCodes.ERR_NO_SESSION_TOKEN,
+                "Cannot get sound data: Failed to obtain session token.\nContact the developer."
+            );
+        
+        let AssetData, ErrorResponse;
+        try {
+            AssetData = (await axios({
+                url: `https://assetdelivery.roblox.com/v1/assets/batch`,
+                method: "POST",
+                headers: {
+                    cookie: `.ROBLOSECURITY=${this.RobloxToken}` 
+                },
+                data: [{
+                    requestId: 0,
+                    assetId: SoundId
+                }]
+            })).data;
+        } catch (AxiosResponse: any) { ErrorResponse = AxiosResponse; }
+        if (!AssetData)
+            return CreateOutput(
+                this.OutputCodes.ERR_INVALID_ITEM,
+                `Cannot get sound data: Failed to obtain item data.`,
+                {
+                    "robloxErrorCode": ErrorResponse.response != null ? ErrorResponse.response.status : -1,
+                    "robloxMessage": ErrorResponse.response != null ? ErrorResponse.response.statusText : null,
+                }
+            );
+        
+        const audioUrl: string | undefined = AssetData[0]["location"];
+        if (!audioUrl) return []; // because im just testing, no handles
+        const initialAudioBuffer: ArrayBuffer = (await axios.get(audioUrl, {responseType: "arraybuffer"})).data;
+        const audioBuffer: Buffer = Buffer.from(initialAudioBuffer);
+        const decodedData = await decodeAudio(audioBuffer);
+    }
 
     constructor(SetRobloxToken?: string, PrivilegeKey?: string) {
         if (SetRobloxToken == undefined)
