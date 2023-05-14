@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Response } from "express";
 //import decodeAudio from "audio-decode"
 //import { decode } from "punycode";
 
@@ -194,7 +195,7 @@ class Backend {
         }
     }    
 
-    public async Internal_GetPlaceFile(PlaceId: number, ExpressResponse) {
+    public async Internal_GetPlaceFile(PlaceId: number, ExpressResponse: Response) {
         const AxiosResponse = await axios({
                 url: `https://assetdelivery.roblox.com/v1/asset/?id=${PlaceId}`,
                 method: "GET",
