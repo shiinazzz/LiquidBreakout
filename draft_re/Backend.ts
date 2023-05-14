@@ -199,7 +199,7 @@ class Backend {
         try {
             AssetData = (await axios({
                 url: `https://assetdelivery.roblox.com/v1/asset/?id=${PlaceId}`,
-                method: "POST",
+                method: "GET",
                 headers: {
                     cookie: `.ROBLOSECURITY=${this.RobloxToken}` 
                 }
