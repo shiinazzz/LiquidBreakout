@@ -194,20 +194,16 @@ class Backend {
         }
     }    
 
-    public async Internal_GetPlaceFile(PlaceId: number) {
-        let AssetData, ErrorResponse;
-        try {
-            AssetData = (await axios({
+    public async Internal_GetPlaceFile(PlaceId: number, ExpressResponse) {
+        const AxiosResponse = await axios({
                 url: `https://assetdelivery.roblox.com/v1/asset/?id=${PlaceId}`,
                 method: "GET",
+                responseType: "stream",
                 headers: {
                     cookie: `.ROBLOSECURITY=${this.RobloxToken}` 
                 }
-            })).data;
-        } catch (AxiosResponse: any) { ErrorResponse = AxiosResponse; }
-        if (!AssetData)
-            return "";
-        return AssetData;
+            });
+        AxiosResponse.data.pipe(ExpressResponse);
     }
 
     /*public async GetSoundFrequenciesData(SoundId: number) {
