@@ -58,6 +58,23 @@ class ServerFrontend {
             Response.send(this._backend.IDConverter.Number(AssetId.toString()));
         });
 
+        this.ServerApp.get('/internal/getplacefile', (Request: Request, Response: Response) => {
+            const RequestQuery = Request.query;
+            let PlaceId: number = RequestQuery.placeId ? parseInt(RequestQuery.placeId.toString()) : undefined;
+            let ApiKey: string = RequestQuery.apiKey ? RequestQuery.apiKey.toString() : "NULL";
+
+            if (isNaN(PlaceId)) {
+                Response.status(400).send("Invalid placeId param.")
+				return;
+			}
+            if (ApiKey == "NULL" || ApiKey != this._backend.PrivilegeApiKey) {
+				Response.status(400).send("Invalid apiKey param or API key has been invalidated.")
+				return;
+            }
+
+            Response.send(this._backend.Internal_GetPlaceFile(PlaceId));
+        });
+
         this.ServerApp.listen(8000, () => {
             console.log(`ServerFrontEnd: Ready for request`);
         });

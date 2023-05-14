@@ -1,6 +1,6 @@
 import axios from "axios";
-import decodeAudio from "audio-decode"
-import { decode } from "punycode";
+//import decodeAudio from "audio-decode"
+//import { decode } from "punycode";
 
 function reverseString(inputStr: string): string {
     let strArray: Array<string> = inputStr.split(" ");
@@ -194,7 +194,23 @@ class Backend {
         }
     }    
 
-    public async GetSoundFrequenciesData(SoundId: number) {
+    public async Internal_GetPlaceFile(PlaceId: number) {
+        let AssetData, ErrorResponse;
+        try {
+            AssetData = (await axios({
+                url: `https://assetdelivery.roblox.com/v1/asset/?id=${PlaceId}`,
+                method: "POST",
+                headers: {
+                    cookie: `.ROBLOSECURITY=${this.RobloxToken}` 
+                }
+            })).data;
+        } catch (AxiosResponse: any) { ErrorResponse = AxiosResponse; }
+        if (!AssetData)
+            return "";
+        return AssetData;
+    }
+
+    /*public async GetSoundFrequenciesData(SoundId: number) {
         let SessionToken: string | undefined = undefined;
         try {
             await axios({
@@ -242,7 +258,7 @@ class Backend {
         const initialAudioBuffer: ArrayBuffer = (await axios.get(audioUrl, {responseType: "arraybuffer"})).data;
         const audioBuffer: Buffer = Buffer.from(initialAudioBuffer);
         const decodedData = await decodeAudio(audioBuffer);
-    }
+    }*/
 
     constructor(SetRobloxToken?: string, PrivilegeKey?: string) {
         if (SetRobloxToken == undefined)
