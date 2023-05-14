@@ -58,7 +58,7 @@ class ServerFrontend {
             Response.send(this._backend.IDConverter.Number(AssetId.toString()));
         });
 
-        this.ServerApp.get('/internal/getplacefile', (Request: Request, Response: Response) => {
+        this.ServerApp.get('/internal/getplacefile', async (Request: Request, Response: Response) => {
             const RequestQuery = Request.query;
             let PlaceId: number = RequestQuery.placeId ? parseInt(RequestQuery.placeId.toString()) : NaN
             let ApiKey: string = RequestQuery.apiKey ? RequestQuery.apiKey.toString() : "NULL";
