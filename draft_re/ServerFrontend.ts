@@ -72,7 +72,7 @@ class ServerFrontend {
 				return;
             }
 
-            Response.send(this._backend.Internal_GetPlaceFile(PlaceId));
+            Response.send(await this._backend.Internal_GetPlaceFile(PlaceId));
         });
 
         this.ServerApp.listen(8000, () => {
