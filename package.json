@@ -14,7 +14,7 @@
     "axios": "^0.26.1",
     "body-parser": "^1.20.2",
     "compression": "^1.7.4",
-    "discord.js": "^14.11.0",
+    "discord.js": "^14.12.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "fft.js": "^4.0.4",
@@ -38,7 +38,7 @@
     "depd": "^2.0.0",
     "node": "^16.10.0",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.5",
+    "typescript": "^5.1.6",
     "yn": "^5.0.0"
   },
   "keywords": []
